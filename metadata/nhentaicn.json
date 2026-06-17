@@ -1,37 +1,13 @@
 {
   "name": "Tachiyomi: NHentai CN",
   "pkg": "eu.kanade.tachiyomi.extension.all.nhentaicn",
-  "lang": "all",
+  "lang": "zh",
   "nsfw": 1,
   "sources": [
     {
-      "name": "NHentai 中文版",
-      "lang": "en",
-      "id": "6316214103987364001",
-      "baseUrl": "https://nhentai.net"
-    },
-    {
-      "name": "NHentai 中文版",
-      "lang": "ja",
-      "id": "6316214103987364002",
-      "baseUrl": "https://nhentai.net"
-    },
-    {
-      "name": "NHentai 中文版",
+      "name": "NHentai 中文/收藏",
       "lang": "zh",
       "id": "6316214103987364003",
-      "baseUrl": "https://nhentai.net"
-    },
-    {
-      "name": "NHentai 中文版",
-      "lang": "all",
-      "id": "6316214103987364004",
-      "baseUrl": "https://nhentai.net"
-    },
-    {
-      "name": "NHentai 我的收藏",
-      "lang": "all",
-      "id": "6316214103987364005",
       "baseUrl": "https://nhentai.net"
     }
   ]

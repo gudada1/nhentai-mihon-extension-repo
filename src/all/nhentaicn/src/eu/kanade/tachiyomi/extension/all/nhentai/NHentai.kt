@@ -394,6 +394,7 @@ open class NHentai(
                 .coerceAtLeast(0),
         ),
         OffsetPageFilter(),
+        Filter.Header("勾选后显示账号收藏，可继续配合上面的条件搜索收藏。"),
         Filter.Header("只显示收藏时会忽略排序"),
         FavoriteFilter(),
     )

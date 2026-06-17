@@ -6,11 +6,12 @@
 
 - 独立包名：`eu.kanade.tachiyomi.extension.all.nhentaicn`
 - NSFW 标记已开启
-- 首页保留热门和最近更新
-- 新增独立源：`NHentai 我的收藏`
+- 只显示一个源：`NHentai 中文/收藏`
+- 首页保留中文热门和中文最近更新
+- 收藏合并到同一个源的筛选项：`只显示我的收藏`
 - 筛选、源设置、详情描述已中文化
 - 收藏接口支持 API key 或 Mihon WebView 本地登录 Cookie
-- API key 设置在所有 NHentai CN 源之间共享
+- API key 设置会从旧版多个源自动迁移到共享设置
 
 ## 登录说明
 
