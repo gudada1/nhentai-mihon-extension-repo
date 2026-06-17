@@ -1,8 +1,0 @@
-ext {
-    extName = 'Hitomi'
-    extClass = '.HitomiFactory'
-    extVersionCode = 42
-    isNsfw = true
-}
-
-apply plugin: "kei.plugins.extension.legacy"

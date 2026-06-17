@@ -1,0 +1,8 @@
+ext {
+    extName = 'E-Hentai CN'
+    extClass = '.EHFactory'
+    extVersionCode = 29
+    isNsfw = true
+}
+
+apply plugin: "kei.plugins.extension.legacy"

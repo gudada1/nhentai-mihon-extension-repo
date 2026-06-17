@@ -1,0 +1,14 @@
+{
+    "name":  "Tachiyomi: MyComic CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.zh.mycomiccn",
+    "lang":  "zh",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "MyComic CN",
+                        "lang":  "zh",
+                        "id":  "5207402593949607612",
+                        "baseUrl":  "https://mycomic.com"
+                    }
+                ]
+}

@@ -1,0 +1,32 @@
+{
+    "name":  "Tachiyomi: AsmHentai CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.all.asmhentaicn",
+    "lang":  "all",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "AsmHentai CN",
+                        "lang":  "en",
+                        "id":  "4843792161838566318",
+                        "baseUrl":  "https://asmhentai.com"
+                    },
+                    {
+                        "name":  "AsmHentai CN",
+                        "lang":  "ja",
+                        "id":  "2724496546734432650",
+                        "baseUrl":  "https://asmhentai.com"
+                    },
+                    {
+                        "name":  "AsmHentai CN",
+                        "lang":  "zh",
+                        "id":  "8611168568912655223",
+                        "baseUrl":  "https://asmhentai.com"
+                    },
+                    {
+                        "name":  "AsmHentai CN",
+                        "lang":  "all",
+                        "id":  "6683408176920042899",
+                        "baseUrl":  "https://asmhentai.com"
+                    }
+                ]
+}

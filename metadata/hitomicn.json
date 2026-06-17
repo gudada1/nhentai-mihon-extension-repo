@@ -1,0 +1,164 @@
+{
+    "name":  "Tachiyomi: Hitomi CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.all.hitomicn",
+    "lang":  "all",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "all",
+                        "id":  "5251184264614179120",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "en",
+                        "id":  "6567504398720398264",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "id",
+                        "id":  "1371292642921335217",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "jv",
+                        "id":  "8602675308423301019",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "ca",
+                        "id":  "2690140443281450866",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "ceb",
+                        "id":  "1894344995291670695",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "cs",
+                        "id":  "5568689585443198802",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "da",
+                        "id":  "3103822189233991409",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "de",
+                        "id":  "5550914128085374454",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "et",
+                        "id":  "7812997770308444398",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "es",
+                        "id":  "1441263938572367225",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "eo",
+                        "id":  "5468926744609965298",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "fr",
+                        "id":  "1616547420504209282",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "it",
+                        "id":  "5224677150341613209",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "hi",
+                        "id":  "5189436123222336155",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "hu",
+                        "id":  "5474584934340320194",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "pl",
+                        "id":  "7649121013894676025",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "pt",
+                        "id":  "6711233428119058496",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "vi",
+                        "id":  "2154882554761421769",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "tr",
+                        "id":  "8706543355435303738",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "ru",
+                        "id":  "1976416328839717214",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "uk",
+                        "id":  "8627910880287311277",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "ar",
+                        "id":  "6820044653090051797",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "ko",
+                        "id":  "8857779455603488065",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "zh",
+                        "id":  "347759595701004047",
+                        "baseUrl":  "https://hitomi.la"
+                    },
+                    {
+                        "name":  "Hitomi CN",
+                        "lang":  "ja",
+                        "id":  "1028737626579222175",
+                        "baseUrl":  "https://hitomi.la"
+                    }
+                ]
+}

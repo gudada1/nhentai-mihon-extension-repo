@@ -1,0 +1,110 @@
+{
+    "name":  "Tachiyomi: E-Hentai CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.all.ehentaicn",
+    "lang":  "all",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "ja",
+                        "id":  "6459778004953248136",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "en",
+                        "id":  "5774007495808316026",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "zh",
+                        "id":  "8860527294206220235",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "nl",
+                        "id":  "2615868544026970047",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "fr",
+                        "id":  "1825596233256308913",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "de",
+                        "id":  "5575373062490630407",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "hu",
+                        "id":  "8651873835125581713",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "it",
+                        "id":  "9176269671528766058",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "ko",
+                        "id":  "2119835616541792873",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "pl",
+                        "id":  "5792929650339504177",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "pt-BR",
+                        "id":  "1851876156717230915",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "ru",
+                        "id":  "7329256177842889868",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "es",
+                        "id":  "5565197296634269664",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "th",
+                        "id":  "2840125444435649609",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "vi",
+                        "id":  "4376195253034009089",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "none",
+                        "id":  "1767836510589562340",
+                        "baseUrl":  "https://e-hentai.org"
+                    },
+                    {
+                        "name":  "E-Hentai CN",
+                        "lang":  "other",
+                        "id":  "6004242392569805969",
+                        "baseUrl":  "https://e-hentai.org"
+                    }
+                ]
+}

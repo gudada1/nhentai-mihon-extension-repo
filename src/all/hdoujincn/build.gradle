@@ -1,0 +1,8 @@
+ext {
+    extName = 'HDoujin CN'
+    extClass = '.HDoujinFactory'
+    extVersionCode = 5
+    isNsfw = true
+}
+
+apply plugin: "kei.plugins.extension.legacy"

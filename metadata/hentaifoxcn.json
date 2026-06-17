@@ -1,0 +1,38 @@
+{
+    "name":  "Tachiyomi: HentaiFox CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.all.hentaifoxcn",
+    "lang":  "all",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "HentaiFox CN",
+                        "lang":  "en",
+                        "id":  "4024108774003074186",
+                        "baseUrl":  "https://hentaifox.com"
+                    },
+                    {
+                        "name":  "HentaiFox CN",
+                        "lang":  "ja",
+                        "id":  "2658171775176720749",
+                        "baseUrl":  "https://hentaifox.com"
+                    },
+                    {
+                        "name":  "HentaiFox CN",
+                        "lang":  "zh",
+                        "id":  "6605447439786994378",
+                        "baseUrl":  "https://hentaifox.com"
+                    },
+                    {
+                        "name":  "HentaiFox CN",
+                        "lang":  "ko",
+                        "id":  "2186864314764591440",
+                        "baseUrl":  "https://hentaifox.com"
+                    },
+                    {
+                        "name":  "HentaiFox CN",
+                        "lang":  "all",
+                        "id":  "3625017873715238168",
+                        "baseUrl":  "https://hentaifox.com"
+                    }
+                ]
+}

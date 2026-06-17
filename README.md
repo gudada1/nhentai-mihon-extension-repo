@@ -4,16 +4,16 @@
 
 ## 包含扩展
 
-- Akuma
-- AsmHentai
-- E-Hentai
-- HDoujin
-- HentaiFox
-- Hitomi
-- MangaDex
-- MyComic
+- Akuma CN
+- AsmHentai CN
+- E-Hentai CN
+- HDoujin CN
+- HentaiFox CN
+- Hitomi CN
+- MangaDex CN
+- MyComic CN
 - NHentai CN
-- Pixiv
+- Pixiv CN
 
 ## 定制内容
 

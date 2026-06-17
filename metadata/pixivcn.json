@@ -1,0 +1,38 @@
+{
+    "name":  "Tachiyomi: Pixiv CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.all.pixivcn",
+    "lang":  "all",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "Pixiv CN",
+                        "lang":  "en",
+                        "id":  "5917899539513106699",
+                        "baseUrl":  "https://www.pixiv.net"
+                    },
+                    {
+                        "name":  "Pixiv CN",
+                        "lang":  "ja",
+                        "id":  "7870814746798477229",
+                        "baseUrl":  "https://www.pixiv.net"
+                    },
+                    {
+                        "name":  "Pixiv CN",
+                        "lang":  "zh",
+                        "id":  "3282877514820363997",
+                        "baseUrl":  "https://www.pixiv.net"
+                    },
+                    {
+                        "name":  "Pixiv CN",
+                        "lang":  "zh-tw",
+                        "id":  "8872334427372118872",
+                        "baseUrl":  "https://www.pixiv.net"
+                    },
+                    {
+                        "name":  "Pixiv CN",
+                        "lang":  "ko",
+                        "id":  "6346254845325867207",
+                        "baseUrl":  "https://www.pixiv.net"
+                    }
+                ]
+}

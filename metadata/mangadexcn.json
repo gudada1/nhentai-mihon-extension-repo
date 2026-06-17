@@ -1,0 +1,374 @@
+{
+    "name":  "Tachiyomi: MangaDex CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.all.mangadexcn",
+    "lang":  "all",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "en",
+                        "id":  "753396462011096794",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "af",
+                        "id":  "1164212020477081189",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "sq",
+                        "id":  "2774495010164913645",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ar",
+                        "id":  "4537995739729315052",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "az",
+                        "id":  "8522307147419851774",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "eu",
+                        "id":  "2911495538014300194",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "be",
+                        "id":  "42992755814372859",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "bn",
+                        "id":  "2832635247234957429",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "bg",
+                        "id":  "6632444078298282064",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "my",
+                        "id":  "1145573196734478002",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ca",
+                        "id":  "1365627850858552075",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "zh-Hans",
+                        "id":  "2120821146982148501",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "zh-Hant",
+                        "id":  "4750402855940903846",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "cv",
+                        "id":  "826429922959898935",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "hr",
+                        "id":  "1039471267114903390",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "cs",
+                        "id":  "8337701305346402421",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "da",
+                        "id":  "3308080567157746285",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "nl",
+                        "id":  "7625722593541108282",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "eo",
+                        "id":  "570024169331039305",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "et",
+                        "id":  "5653319443915976891",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "fil",
+                        "id":  "2779819066723326340",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "fi",
+                        "id":  "2978001071415880803",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "fr",
+                        "id":  "4772969376942775650",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ka",
+                        "id":  "5233197346292776024",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "de",
+                        "id":  "2302002501176920727",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "el",
+                        "id":  "2301998347982980096",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "he",
+                        "id":  "8412168409024207486",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "hi",
+                        "id":  "8847298149107587344",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "hu",
+                        "id":  "2083279408519334465",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ga",
+                        "id":  "3940590901571748107",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "id",
+                        "id":  "8975057648806703558",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "it",
+                        "id":  "4224740726636660753",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "jv",
+                        "id":  "7026405516770664469",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ja",
+                        "id":  "4929247791668106752",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "kk",
+                        "id":  "5343544430506046406",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ko",
+                        "id":  "8439567727757957052",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "la",
+                        "id":  "7169433523208138370",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "lt",
+                        "id":  "2441454235528602260",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ms",
+                        "id":  "5427222555136764746",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "mn",
+                        "id":  "5637076457192488826",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ne",
+                        "id":  "8437497729720323098",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "no",
+                        "id":  "811282600154310275",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "fa",
+                        "id":  "1460641250799814200",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "pl",
+                        "id":  "902735230078062129",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "pt-BR",
+                        "id":  "1856913469588950023",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "pt",
+                        "id":  "4074992496492192213",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ro",
+                        "id":  "4350972952521331645",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ru",
+                        "id":  "673924807444213137",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "sr",
+                        "id":  "6816578943328815126",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "sk",
+                        "id":  "1216936109868873657",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "es-419",
+                        "id":  "4187817615217880754",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "es",
+                        "id":  "1575041196255805229",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "sv",
+                        "id":  "1098472037616212206",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ta",
+                        "id":  "5393591816741553746",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "te",
+                        "id":  "1444993314274545584",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "th",
+                        "id":  "1686803535615747205",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "tr",
+                        "id":  "6523821740049695023",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "uk",
+                        "id":  "6592356204035371562",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "ur",
+                        "id":  "1326873864314952834",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "uz",
+                        "id":  "409289036865435519",
+                        "baseUrl":  "https://mangadex.org"
+                    },
+                    {
+                        "name":  "MangaDex CN",
+                        "lang":  "vi",
+                        "id":  "2235367901307372098",
+                        "baseUrl":  "https://mangadex.org"
+                    }
+                ]
+}

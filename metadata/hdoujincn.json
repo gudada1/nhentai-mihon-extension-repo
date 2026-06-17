@@ -1,0 +1,44 @@
+{
+    "name":  "Tachiyomi: HDoujin CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.all.hdoujincn",
+    "lang":  "all",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "HDoujin CN",
+                        "lang":  "all",
+                        "id":  "4337053464476074945",
+                        "baseUrl":  "https://hdoujin.org"
+                    },
+                    {
+                        "name":  "HDoujin CN",
+                        "lang":  "en",
+                        "id":  "9106306830113453633",
+                        "baseUrl":  "https://hdoujin.org"
+                    },
+                    {
+                        "name":  "HDoujin CN",
+                        "lang":  "es",
+                        "id":  "7136622894622680476",
+                        "baseUrl":  "https://hdoujin.org"
+                    },
+                    {
+                        "name":  "HDoujin CN",
+                        "lang":  "ja",
+                        "id":  "1258872700430413918",
+                        "baseUrl":  "https://hdoujin.org"
+                    },
+                    {
+                        "name":  "HDoujin CN",
+                        "lang":  "ko",
+                        "id":  "7257526330077178159",
+                        "baseUrl":  "https://hdoujin.org"
+                    },
+                    {
+                        "name":  "HDoujin CN",
+                        "lang":  "zh",
+                        "id":  "5104277204798646044",
+                        "baseUrl":  "https://hdoujin.org"
+                    }
+                ]
+}

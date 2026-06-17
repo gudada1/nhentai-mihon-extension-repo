@@ -1,0 +1,170 @@
+{
+    "name":  "Tachiyomi: Akuma CN",
+    "pkg":  "eu.kanade.tachiyomi.extension.all.akumacn",
+    "lang":  "all",
+    "nsfw":  1,
+    "sources":  [
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "all",
+                        "id":  "2172653008540805234",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "en",
+                        "id":  "1663237248065545297",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "id",
+                        "id":  "4211031336319393198",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "jv",
+                        "id":  "2913627243867185316",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "ca",
+                        "id":  "3431104888593088969",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "ceb",
+                        "id":  "6934026747458559897",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "cs",
+                        "id":  "3670979411376325327",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "da",
+                        "id":  "663145625461391413",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "de",
+                        "id":  "1929826346125352242",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "et",
+                        "id":  "6380889095897216619",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "es",
+                        "id":  "5093202390856678753",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "eo",
+                        "id":  "5865383573528081626",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "fr",
+                        "id":  "8681763324602376596",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "it",
+                        "id":  "5095418920071332796",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "hi",
+                        "id":  "8475649589492874719",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "hu",
+                        "id":  "6323744273567924265",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "nl",
+                        "id":  "3849658816836078905",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "pl",
+                        "id":  "8583381940715179503",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "pt",
+                        "id":  "8457619282433071879",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "vi",
+                        "id":  "8433453685625067483",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "tr",
+                        "id":  "5035089036449081603",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "ru",
+                        "id":  "7506354253379451085",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "uk",
+                        "id":  "7864094415469753585",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "ar",
+                        "id":  "1386735881046984312",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "ko",
+                        "id":  "4238760770067366624",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "zh",
+                        "id":  "5693874083251837491",
+                        "baseUrl":  "https://akuma.moe"
+                    },
+                    {
+                        "name":  "Akuma CN",
+                        "lang":  "ja",
+                        "id":  "6596503492023300611",
+                        "baseUrl":  "https://akuma.moe"
+                    }
+                ]
+}
