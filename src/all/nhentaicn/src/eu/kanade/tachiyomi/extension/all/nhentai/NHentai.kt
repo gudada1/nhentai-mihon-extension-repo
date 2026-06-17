@@ -25,8 +25,8 @@ import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import eu.kanade.tachiyomi.source.online.HttpSource
 import keiyoushi.lib.randomua.addRandomUAPreference
 import keiyoushi.lib.randomua.setRandomUserAgent
+import keiyoushi.utils.applicationContext
 import keiyoushi.utils.firstInstanceOrNull
-import keiyoushi.utils.getPreferencesLazy
 import keiyoushi.utils.parseAs
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
@@ -63,7 +63,7 @@ open class NHentai(
 
     private val json: Json by injectLazy()
 
-    private val preferences: SharedPreferences by getPreferencesLazy()
+    private val preferences: SharedPreferences by lazy { sharedPreferencesWithMigration() }
 
     private val webViewCookieManager: CookieManager by lazy { CookieManager.getInstance() }
 
@@ -165,7 +165,7 @@ open class NHentai(
         EditTextPreference(screen.context).apply {
             key = API_KEY
             title = "API key（推荐）"
-            summary = "在 nHentai 的 Profile > Settings > API Keys 创建后填入；也可通过 WebView 登录使用收藏。"
+            summary = "推荐用于绕开 WebView 登录和 CAPTCHA。登录网页后到 Profile > Settings > API Keys 创建并填入。"
             setDefaultValue("")
         }.let(screen::addPreference)
 
@@ -430,6 +430,8 @@ open class NHentai(
         const val SOURCE_ID_ZH = 6316214103987364003L
         const val SOURCE_ID_ALL = 6316214103987364004L
         const val SOURCE_ID_FAVORITES = 6316214103987364005L
+        private const val SHARED_PREFS_NAME = "source_nhentaicn_shared"
+        private const val SHARED_PREFS_MIGRATED = "shared_prefs_migrated_v1"
         private const val NHENTAI_HOST = "nhentai.net"
         private val GALLERY_PATH_REGEX = Regex("^/api/v2/galleries/\\d+/?$")
         private val API_PATH_REGEX = Regex("^/api/v2/.*$")
@@ -459,6 +461,33 @@ open class NHentai(
         )
 
         private const val SORT_PREF = "搜索默认排序"
+    }
+
+    private fun sharedPreferencesWithMigration(): SharedPreferences {
+        val shared = applicationContext.getSharedPreferences(SHARED_PREFS_NAME, 0x0000)
+        if (shared.getBoolean(SHARED_PREFS_MIGRATED, false)) return shared
+
+        val editor = shared.edit()
+        listOf(SOURCE_ID_EN, SOURCE_ID_JA, SOURCE_ID_ZH, SOURCE_ID_ALL, SOURCE_ID_FAVORITES)
+            .forEach { oldSourceId ->
+                val oldPrefs = applicationContext.getSharedPreferences("source_$oldSourceId", 0x0000)
+                oldPrefs.all.forEach { (key, value) ->
+                    if (shared.contains(key)) return@forEach
+                    when (value) {
+                        is String -> editor.putString(key, value)
+                        is Boolean -> editor.putBoolean(key, value)
+                        is Int -> editor.putInt(key, value)
+                        is Long -> editor.putLong(key, value)
+                        is Float -> editor.putFloat(key, value)
+                        is Set<*> ->
+                            @Suppress("UNCHECKED_CAST")
+                            editor.putStringSet(key, value as Set<String>)
+                    }
+                }
+            }
+
+        editor.putBoolean(SHARED_PREFS_MIGRATED, true).apply()
+        return shared
     }
 
     private fun SharedPreferences.parseRateLimit(): Pair<Int, Long> {
