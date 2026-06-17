@@ -19,7 +19,7 @@
 
 账号密码不会写入仓库、源码、APK 或索引。查看收藏时请在 Mihon 中使用以下任一方式：
 
-- 推荐：在普通浏览器登录 nHentai，到 Profile > Settings > API Keys 创建 API key，然后填入源设置
+- 推荐：在普通浏览器登录 nHentai，到 `https://nhentai.net/user/settings#apikeys` 创建 API key，然后填入源设置
 - 备用：打开源的 WebView 并登录 nHentai
 - 备用：如果 API key 页面找不到且 WebView CAPTCHA 失败，可从你自己已登录的浏览器里复制 `access_token` Cookie，填入源设置的 `Access token（备用）`
 

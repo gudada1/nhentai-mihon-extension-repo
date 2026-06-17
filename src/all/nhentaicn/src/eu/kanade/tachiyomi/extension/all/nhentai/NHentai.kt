@@ -168,7 +168,7 @@ open class NHentai(
         EditTextPreference(screen.context).apply {
             key = API_KEY
             title = "API key（推荐）"
-            summary = "推荐用于绕开 WebView 登录和 CAPTCHA。登录网页后到 Profile > Settings > API Keys 创建并填入。"
+            summary = "推荐用于绕开 WebView 登录和 CAPTCHA。登录网页后到 https://nhentai.net/user/settings#apikeys 创建并填入。"
             setDefaultValue("")
             setOnPreferenceChangeListener { _, newValue ->
                 preferences.edit().putString(API_KEY, (newValue as String).normalizeApiKey()).apply()
@@ -285,7 +285,7 @@ open class NHentai(
                 .map(String::trim)
                 .filterNot(String::isBlank)
                 .forEach { tag ->
-                    val shouldQuoteValue = !(filter.queryName == "Pages" || filter.queryName == "Uploaded")
+                    val shouldQuoteValue = !(filter.queryName == "pages" || filter.queryName == "uploaded")
                     if (tag.startsWith("-")) append("-")
                     append(filter.queryName, ':')
                     if (shouldQuoteValue) append('"')
@@ -417,14 +417,14 @@ open class NHentai(
         FavoriteFilter(),
     )
 
-    class TagFilter : AdvSearchEntryFilter("标签", "Tags")
-    class CategoryFilter : AdvSearchEntryFilter("分类", "Categories")
-    class GroupFilter : AdvSearchEntryFilter("社团", "Groups")
-    class ArtistFilter : AdvSearchEntryFilter("画师", "Artists")
-    class ParodyFilter : AdvSearchEntryFilter("原作", "Parodies")
-    class CharactersFilter : AdvSearchEntryFilter("角色", "Characters")
-    class UploadedFilter : AdvSearchEntryFilter("上传时间", "Uploaded")
-    class PagesFilter : AdvSearchEntryFilter("页数", "Pages")
+    class TagFilter : AdvSearchEntryFilter("标签", "tag")
+    class CategoryFilter : AdvSearchEntryFilter("分类", "category")
+    class GroupFilter : AdvSearchEntryFilter("社团", "group")
+    class ArtistFilter : AdvSearchEntryFilter("画师", "artist")
+    class ParodyFilter : AdvSearchEntryFilter("原作", "parody")
+    class CharactersFilter : AdvSearchEntryFilter("角色", "character")
+    class UploadedFilter : AdvSearchEntryFilter("上传时间", "uploaded")
+    class PagesFilter : AdvSearchEntryFilter("页数", "pages")
     open class AdvSearchEntryFilter(name: String, val queryName: String) : Filter.Text(name)
 
     class OffsetPageFilter : Filter.Text("结果偏移页数")
