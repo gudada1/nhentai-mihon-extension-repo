@@ -1,15 +1,29 @@
-# NHentai CN Mihon Extension Repo
+# Gudada Mihon Extension Repo
 
-这是一个单独的 Mihon 扩展仓库，包含定制版 nHentai 源。
+这是一个单独的 Mihon 扩展仓库，包含常用漫画源的中文筛选定制版。
 
-## 功能
+## 包含扩展
 
-- 独立包名：`eu.kanade.tachiyomi.extension.all.nhentaicn`
-- NSFW 标记已开启
-- 只显示一个源：`NHentai 中文/收藏`
-- 首页保留中文热门和中文最近更新
-- 收藏合并到同一个源的筛选项：`只显示我的收藏`
-- 筛选、源设置、详情描述已中文化
+- Akuma
+- AsmHentai
+- E-Hentai
+- HDoujin
+- HentaiFox
+- Hitomi
+- MangaDex
+- MyComic
+- NHentai CN
+- Pixiv
+
+## 定制内容
+
+- 常用源的筛选项尽量中文化，并保留原站查询参数
+- 多语言源保留原有多站点/多语言入口
+- 成人向源保留 NSFW 标记
+- `NHentai 中文/收藏` 首页保留中文热门和中文最近更新
+- `NHentai 中文/收藏` 收藏合并到同一个源的筛选项：`只显示我的收藏`
+- `NHentai 中文/收藏` 支持收藏起始页筛选，可从指定页开始浏览
+- `NHentai 中文/收藏` 会记住上次填写的收藏起始页和预设
 - 收藏接口支持 API key 或 Mihon WebView 本地登录 Cookie
 - 找不到 API key 时，可在源设置中手动填写自己的 `access_token` Cookie 作为备用
 - API key 设置会从旧版多个源自动迁移到共享设置
@@ -27,7 +41,7 @@
 
 ## 发布
 
-把本目录推送到 GitHub 后，在 Mihon 添加仓库地址：
+在 Mihon 添加仓库地址：
 
 ```text
 https://raw.githubusercontent.com/gudada1/nhentai-mihon-extension-repo/main/index.min.json

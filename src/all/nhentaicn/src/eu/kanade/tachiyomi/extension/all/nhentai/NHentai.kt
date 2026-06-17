@@ -260,23 +260,39 @@ open class NHentai(
         val nhLangSearch = if (nhLang.isBlank()) "" else "language:$nhLang "
         val advQuery = combineQuery(filterList)
         val favoriteFilter = filterList.firstInstanceOrNull<FavoriteFilter>()
-        val offsetPage =
-            filterList.firstInstanceOrNull<OffsetPageFilter>()?.state?.toIntOrNull()?.plus(page) ?: page
+        val requestPage = resolveRequestPage(page, filterList)
 
         if (favoriteFilter?.state == true) {
-            return favoritesMangaRequest(offsetPage, "$query $advQuery".trim())
+            return favoritesMangaRequest(requestPage, "$query $advQuery".trim())
         } else {
             val url = "$apiUrl/search".toHttpUrl().newBuilder()
                 // Blank query (Multi + sort by popular month/week/day) shows a 404 page
                 // Searching for `""` is a hacky way to return everything without any filtering
                 .addQueryParameter("query", "$query $nhLangSearch$advQuery".ifBlank { "\"\"" })
-                .addQueryParameter("page", offsetPage.toString())
+                .addQueryParameter("page", requestPage.toString())
 
             filterList.firstInstanceOrNull<SortFilter>()?.let { f ->
                 url.addQueryParameter("sort", f.toUriPart())
             }
             return GET(url.build(), headers)
         }
+    }
+
+    protected fun resolveRequestPage(page: Int, filters: FilterList): Int {
+        val typedPage = filters.firstInstanceOrNull<StartPageFilter>()?.state?.trim().orEmpty()
+        val presetFilter = filters.firstInstanceOrNull<StartPagePresetFilter>()
+        val presetPage = presetFilter?.toUriPart()?.toIntOrNull()
+
+        preferences.edit()
+            .putString(START_PAGE_PREF, typedPage)
+            .putInt(START_PAGE_PRESET_PREF, presetFilter?.state ?: 0)
+            .apply()
+
+        val startPage = (presetPage ?: typedPage.toIntOrNull())
+            ?.coerceAtLeast(1)
+            ?: return page
+
+        return startPage + page - 1
     }
 
     protected fun combineQuery(filters: FilterList): String = buildString {
@@ -411,7 +427,12 @@ open class NHentai(
             SORT_OPTIONS.indexOfFirst { it.second == preferences.getString(SORT_PREF, "popular") }
                 .coerceAtLeast(0),
         ),
-        OffsetPageFilter(),
+        StartPagePresetFilter(
+            preferences.getInt(START_PAGE_PRESET_PREF, 0)
+                .coerceIn(0, START_PAGE_PRESET_OPTIONS.lastIndex),
+        ),
+        StartPageFilter(preferences.getString(START_PAGE_PREF, "").orEmpty()),
+        Filter.Header("起始页为空时从第 1 页开始；输入 700 时第一页就是第 700 页，下一页是 701。"),
         Filter.Header("勾选后显示账号收藏，可继续配合上面的条件搜索收藏。"),
         Filter.Header("只显示收藏时会忽略排序"),
         FavoriteFilter(),
@@ -427,13 +448,15 @@ open class NHentai(
     class PagesFilter : AdvSearchEntryFilter("页数", "pages")
     open class AdvSearchEntryFilter(name: String, val queryName: String) : Filter.Text(name)
 
-    class OffsetPageFilter : Filter.Text("结果偏移页数")
+    class StartPageFilter(default: String = "") : Filter.Text("起始页（手动输入）", default)
+
+    class StartPagePresetFilter(default: Int) : UriPartFilter("快捷跳页（优先于手动输入）", START_PAGE_PRESET_OPTIONS, default)
 
     private class FavoriteFilter : Filter.CheckBox("只显示我的收藏", false)
 
     private class SortFilter(default: Int) : UriPartFilter("排序", SORT_OPTIONS, default)
 
-    private open class UriPartFilter(
+    open class UriPartFilter(
         displayName: String,
         val vals: Array<Pair<String, String>>,
         state: Int,
@@ -458,6 +481,8 @@ open class NHentai(
         private const val BACKOFF_RETRY_HEADER = "X-NHentai-Backoff-Retry"
         private const val GALLERY_CACHE_MAX_AGE_SECONDS = 7200
         private const val RATE_LIMIT_PREF = "rate_limit_pref"
+        private const val START_PAGE_PREF = "start_page_pref"
+        private const val START_PAGE_PRESET_PREF = "start_page_preset_pref"
         private const val RATE_LIMIT_DEFAULT = "1/1"
         private const val RATE_LIMIT_MIN_PERMITS = 1
         private const val RATE_LIMIT_MAX_PERMITS = 10
@@ -478,6 +503,26 @@ open class NHentai(
             Pair("热门：本周", "popular-week"),
             Pair("热门：今天", "popular-today"),
             Pair("最近更新", "date"),
+        )
+
+        private val START_PAGE_PRESET_OPTIONS = arrayOf(
+            Pair("手动输入", ""),
+            Pair("第 1 页", "1"),
+            Pair("第 25 页", "25"),
+            Pair("第 50 页", "50"),
+            Pair("第 100 页", "100"),
+            Pair("第 150 页", "150"),
+            Pair("第 200 页", "200"),
+            Pair("第 250 页", "250"),
+            Pair("第 300 页", "300"),
+            Pair("第 350 页", "350"),
+            Pair("第 400 页", "400"),
+            Pair("第 450 页", "450"),
+            Pair("第 500 页", "500"),
+            Pair("第 550 页", "550"),
+            Pair("第 600 页", "600"),
+            Pair("第 650 页", "650"),
+            Pair("第 700 页", "700"),
         )
 
         private const val SORT_PREF = "搜索默认排序"
@@ -654,10 +699,9 @@ class NHentaiFavorites(
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         val filterList = if (filters.isEmpty()) getFilterList() else filters
         val advQuery = combineQuery(filterList)
-        val offsetPage =
-            filterList.firstInstanceOrNull<OffsetPageFilter>()?.state?.toIntOrNull()?.plus(page) ?: page
+        val requestPage = resolveRequestPage(page, filterList)
 
-        return favoritesMangaRequest(offsetPage, "$query $advQuery".trim())
+        return favoritesMangaRequest(requestPage, "$query $advQuery".trim())
     }
 
     override fun getFilterList(): FilterList = FilterList(
@@ -675,6 +719,8 @@ class NHentaiFavorites(
         Filter.Header("按页数筛选，示例：>20"),
         PagesFilter(),
         Filter.Separator(),
-        OffsetPageFilter(),
+        StartPagePresetFilter(0),
+        StartPageFilter(),
+        Filter.Header("起始页为空时从第 1 页开始；输入 700 时第一页就是第 700 页，下一页是 701。"),
     )
 }
