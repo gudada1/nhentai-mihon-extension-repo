@@ -78,6 +78,46 @@ function Convert-Source {
     }
 }
 
+function Copy-SourceWithLanguage {
+    param(
+        $Source,
+        [string] $Language
+    )
+
+    [ordered]@{
+        name = "$($Source.name)"
+        lang = $Language
+        id = "$($Source.id)"
+        baseUrl = "$($Source.baseUrl)"
+    }
+}
+
+function Normalize-SourceList {
+    param($Sources)
+
+    $normalized = @($Sources)
+    if ($normalized.Count -eq 0) {
+        return $normalized
+    }
+
+    if (-not ($normalized | Where-Object { $_.lang -eq 'all' } | Select-Object -First 1)) {
+        $fallback = ($normalized | Where-Object { $_.lang -eq 'zh' } | Select-Object -First 1)
+        if (-not $fallback) {
+            $fallback = $normalized[0]
+        }
+        $normalized = @((Copy-SourceWithLanguage $fallback 'all')) + $normalized
+    }
+
+    if (-not ($normalized | Where-Object { $_.lang -eq 'zh' } | Select-Object -First 1)) {
+        $zhFallback = ($normalized | Where-Object { "$($_.lang)".StartsWith('zh') } | Select-Object -First 1)
+        if ($zhFallback) {
+            $normalized = @((Copy-SourceWithLanguage $zhFallback 'zh')) + $normalized
+        }
+    }
+
+    return $normalized
+}
+
 function Convert-V2Source {
     param(
         $Source,
@@ -224,6 +264,7 @@ $entries = @(Get-ChildItem -LiteralPath $apkDir -Filter '*.apk' -File | Sort-Obj
     } else {
         @()
     }
+    $sources = @(Normalize-SourceList $sources)
 
     $lang = if ($metadata -and $metadata.lang) {
         "$($metadata.lang)"
