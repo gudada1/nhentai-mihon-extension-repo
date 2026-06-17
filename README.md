@@ -23,6 +23,12 @@
 把本目录推送到 GitHub 后，在 Mihon 添加仓库地址：
 
 ```text
+https://raw.githubusercontent.com/gudada1/nhentai-mihon-extension-repo/main/index.min.json
+```
+
+如果你的 Mihon 版本支持新版仓库元数据，也可以添加：
+
+```text
 https://raw.githubusercontent.com/gudada1/nhentai-mihon-extension-repo/main/repo.json
 ```
 
