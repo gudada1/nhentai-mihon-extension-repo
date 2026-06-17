@@ -7,6 +7,7 @@ $ErrorActionPreference = 'Stop'
 $apkDir = Join-Path $RepoRoot 'apk'
 $metadataDir = Join-Path $RepoRoot 'metadata'
 $indexPath = Join-Path $RepoRoot 'index.min.json'
+$indexV2Path = Join-Path $RepoRoot 'index-v2.min.json'
 $aaptCandidates = @(
     (Join-Path $env:ANDROID_HOME 'build-tools\37.0.0\aapt.exe'),
     (Join-Path $env:ANDROID_HOME 'build-tools\36.0.0\aapt.exe'),
@@ -158,4 +159,6 @@ if (-not $json) {
 }
 
 [System.IO.File]::WriteAllText($indexPath, $json, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($indexV2Path, $json, [System.Text.UTF8Encoding]::new($false))
 Write-Output "Generated $indexPath with $($entries.Count) entries."
+Write-Output "Generated $indexV2Path with $($entries.Count) entries."

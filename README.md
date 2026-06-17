@@ -44,6 +44,12 @@
 在 Mihon 添加仓库地址：
 
 ```text
+https://raw.githubusercontent.com/gudada1/nhentai-mihon-extension-repo/main/index-v2.min.json
+```
+
+旧地址保留备用；如果 Mihon 或 GitHub raw 缓存旧索引，请优先使用上面的 v2 地址：
+
+```text
 https://raw.githubusercontent.com/gudada1/nhentai-mihon-extension-repo/main/index.min.json
 ```
 
