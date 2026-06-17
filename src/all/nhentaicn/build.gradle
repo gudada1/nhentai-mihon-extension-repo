@@ -1,0 +1,12 @@
+ext {
+    extName = 'NHentai CN'
+    extClass = '.NHFactory'
+    extVersionCode = 61
+    isNsfw = true
+}
+
+apply plugin: "kei.plugins.extension.legacy"
+
+dependencies {
+    implementation(project(":lib:randomua"))
+}
