@@ -1,15 +1,18 @@
 param(
-    [string] $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+    [string] $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path,
+    [string] $RawBaseUrl = 'https://raw.githubusercontent.com/gudada1/nhentai-mihon-extension-repo/main'
 )
 
 $ErrorActionPreference = 'Stop'
 
 $apkDir = Join-Path $RepoRoot 'apk'
 $metadataDir = Join-Path $RepoRoot 'metadata'
+$repoPath = Join-Path $RepoRoot 'repo.json'
 $indexPath = Join-Path $RepoRoot 'index.min.json'
 $indexV2Path = Join-Path $RepoRoot 'index-v2.min.json'
 $cacheBustedIndexDir = Join-Path $RepoRoot 'v2'
 $cacheBustedIndexPath = Join-Path $cacheBustedIndexDir 'index.min.json'
+$cacheBustedRepoPath = Join-Path $cacheBustedIndexDir 'repo.json'
 $aaptCandidates = @(
     (Join-Path $env:ANDROID_HOME 'build-tools\37.0.0\aapt.exe'),
     (Join-Path $env:ANDROID_HOME 'build-tools\36.0.0\aapt.exe'),
@@ -72,6 +75,109 @@ function Convert-Source {
         lang = "$($Source.lang)"
         id = "$($Source.id)"
         baseUrl = "$($Source.baseUrl)"
+    }
+}
+
+function Convert-V2Source {
+    param(
+        $Source,
+        [int] $Nsfw
+    )
+
+    [ordered]@{
+        id = [long] "$($Source.id)"
+        name = "$($Source.name)"
+        language = "$($Source.lang)"
+        homeUrl = "$($Source.baseUrl)"
+        mirrorUrls = @()
+        contentRating = if ($Nsfw -eq 1) { 'PORNOGRAPHIC' } else { 'SAFE' }
+    }
+}
+
+function Get-ExtensionLibVersion {
+    param([string] $VersionName)
+
+    $lastDot = $VersionName.LastIndexOf('.')
+    if ($lastDot -gt 0) {
+        return $VersionName.Substring(0, $lastDot)
+    }
+
+    return $VersionName
+}
+
+function Convert-V2Extension {
+    param(
+        $Entry,
+        [string] $RawBaseUrl
+    )
+
+    $extensionName = "$($Entry.name)"
+    if ($extensionName.StartsWith('Tachiyomi: ')) {
+        $extensionName = $extensionName.Substring('Tachiyomi: '.Length)
+    }
+
+    $sources = if ($Entry.sources -and @($Entry.sources).Count -gt 0) {
+        @($Entry.sources) | ForEach-Object { Convert-V2Source $_ ([int] $Entry.nsfw) }
+    } else {
+        @(
+            [ordered]@{
+                id = 0
+                name = $extensionName
+                language = "$($Entry.lang)"
+                homeUrl = ''
+                mirrorUrls = @()
+                contentRating = if ([int] $Entry.nsfw -eq 1) { 'PORNOGRAPHIC' } else { 'SAFE' }
+            }
+        )
+    }
+
+    [ordered]@{
+        name = $extensionName
+        packageName = "$($Entry.pkg)"
+        resources = [ordered]@{
+            apkUrl = "$RawBaseUrl/apk/$($Entry.apk)"
+            iconUrl = "$RawBaseUrl/icon/$($Entry.pkg).png"
+        }
+        extensionLib = Get-ExtensionLibVersion "$($Entry.version)"
+        versionCode = [long] $Entry.code
+        versionName = "$($Entry.version)"
+        sources = @($sources)
+    }
+}
+
+function New-RepoMetadata {
+    param(
+        $Repo,
+        [string] $IndexV2Url
+    )
+
+    [ordered]@{
+        index_v2 = $IndexV2Url
+        meta = [ordered]@{
+            name = "$($Repo.meta.name)"
+            shortName = "$($Repo.meta.shortName)"
+            website = "$($Repo.meta.website)"
+            signingKeyFingerprint = "$($Repo.meta.signingKeyFingerprint)"
+        }
+    }
+}
+
+function New-V2Store {
+    param(
+        $Repo,
+        $Entries,
+        [string] $RawBaseUrl
+    )
+
+    [ordered]@{
+        name = "$($Repo.meta.name)"
+        badgeLabel = if ($Repo.meta.shortName) { "$($Repo.meta.shortName)" } else { "$($Repo.meta.name)" }
+        signingKey = "$($Repo.meta.signingKeyFingerprint)"
+        contact = [ordered]@{
+            website = "$($Repo.meta.website)"
+            discord = $null
+        }
+        extensions = @($Entries | ForEach-Object { Convert-V2Extension $_ $RawBaseUrl })
     }
 }
 
@@ -160,10 +266,19 @@ if (-not $json) {
     $json = '[]'
 }
 
+$repo = Get-Content -LiteralPath $repoPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$indexV2Url = "$RawBaseUrl/v2/index.min.json"
+$repoMetadataJson = ConvertTo-Json -InputObject (New-RepoMetadata $repo $indexV2Url) -Depth 20 -Compress
+$v2Json = ConvertTo-Json -InputObject (New-V2Store $repo @($entries) $RawBaseUrl) -Depth 30 -Compress
+
 [System.IO.File]::WriteAllText($indexPath, $json, [System.Text.UTF8Encoding]::new($false))
-[System.IO.File]::WriteAllText($indexV2Path, $json, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($repoPath, $repoMetadataJson, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($indexV2Path, $v2Json, [System.Text.UTF8Encoding]::new($false))
 New-Item -ItemType Directory -Force -Path $cacheBustedIndexDir | Out-Null
-[System.IO.File]::WriteAllText($cacheBustedIndexPath, $json, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($cacheBustedIndexPath, $v2Json, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($cacheBustedRepoPath, $repoMetadataJson, [System.Text.UTF8Encoding]::new($false))
 Write-Output "Generated $indexPath with $($entries.Count) entries."
-Write-Output "Generated $indexV2Path with $($entries.Count) entries."
-Write-Output "Generated $cacheBustedIndexPath with $($entries.Count) entries."
+Write-Output "Generated $repoPath."
+Write-Output "Generated $indexV2Path with $($entries.Count) v2 entries."
+Write-Output "Generated $cacheBustedIndexPath with $($entries.Count) v2 entries."
+Write-Output "Generated $cacheBustedRepoPath."
