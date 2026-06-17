@@ -99,9 +99,9 @@ open class NHentai(
     // Authentication
 
     val apiKey
-        get() = preferences.getString(API_KEY, "")
+        get() = readAuthPreference(API_KEY).normalizeApiKey()
     private val manualAccessToken
-        get() = preferences.getString(ACCESS_TOKEN, "")
+        get() = readAuthPreference(ACCESS_TOKEN).normalizeAccessToken()
     val cookieToken
         get() = manualAccessToken.takeUnless { it.isNullOrBlank() }
             ?: webViewCookieManager.getCookie(baseUrl)
@@ -170,6 +170,10 @@ open class NHentai(
             title = "API key（推荐）"
             summary = "推荐用于绕开 WebView 登录和 CAPTCHA。登录网页后到 Profile > Settings > API Keys 创建并填入。"
             setDefaultValue("")
+            setOnPreferenceChangeListener { _, newValue ->
+                preferences.edit().putString(API_KEY, (newValue as String).normalizeApiKey()).apply()
+                true
+            }
         }.let(screen::addPreference)
 
         EditTextPreference(screen.context).apply {
@@ -177,6 +181,10 @@ open class NHentai(
             title = "Access token（备用）"
             summary = "找不到 API key 时使用。只填写你自己的 nHentai access_token Cookie，不要分享给别人。"
             setDefaultValue("")
+            setOnPreferenceChangeListener { _, newValue ->
+                preferences.edit().putString(ACCESS_TOKEN, (newValue as String).normalizeAccessToken()).apply()
+                true
+            }
         }.let(screen::addPreference)
 
         screen.addRandomUAPreference()
@@ -501,6 +509,36 @@ open class NHentai(
         editor.putBoolean(SHARED_PREFS_MIGRATED, true).apply()
         return shared
     }
+
+    private fun readAuthPreference(key: String): String {
+        val sourcePrefs = applicationContext.getSharedPreferences("source_$id", 0x0000)
+        val legacyPrefs = listOf(SOURCE_ID_EN, SOURCE_ID_JA, SOURCE_ID_ZH, SOURCE_ID_ALL, SOURCE_ID_FAVORITES)
+            .filterNot { it == id }
+            .map { applicationContext.getSharedPreferences("source_$it", 0x0000) }
+
+        return (listOf(sourcePrefs, preferences) + legacyPrefs)
+            .firstNotNullOfOrNull { prefs -> prefs.getString(key, null)?.takeIf(String::isNotBlank) }
+            .orEmpty()
+    }
+
+    private fun String?.normalizeApiKey(): String = orEmpty()
+        .trim()
+        .replace(Regex("(?i)^authorization:\\s*"), "")
+        .replace(Regex("(?i)^key\\s+"), "")
+        .trim()
+
+    private fun String?.normalizeAccessToken(): String = orEmpty()
+        .trim()
+        .replace(Regex("(?i)^authorization:\\s*"), "")
+        .replace(Regex("(?i)^user\\s+"), "")
+        .let { raw ->
+            if (raw.contains("access_token=")) {
+                raw.substringAfter("access_token=").substringBefore(";")
+            } else {
+                raw
+            }
+        }
+        .trim()
 
     private fun SharedPreferences.parseRateLimit(): Pair<Int, Long> {
         val raw = getString(RATE_LIMIT_PREF, RATE_LIMIT_DEFAULT).orEmpty()

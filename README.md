@@ -13,6 +13,7 @@
 - 收藏接口支持 API key 或 Mihon WebView 本地登录 Cookie
 - 找不到 API key 时，可在源设置中手动填写自己的 `access_token` Cookie 作为备用
 - API key 设置会从旧版多个源自动迁移到共享设置
+- API key 会自动清理 `Key ` / `Authorization: Key ` 前缀和多余空格
 
 ## 登录说明
 
