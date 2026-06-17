@@ -100,11 +100,14 @@ open class NHentai(
 
     val apiKey
         get() = preferences.getString(API_KEY, "")
+    private val manualAccessToken
+        get() = preferences.getString(ACCESS_TOKEN, "")
     val cookieToken
-        get() = webViewCookieManager.getCookie(baseUrl)
-            ?.split("; ")
-            ?.firstOrNull { it.startsWith("access_token=") }
-            ?.replace("access_token=", "") ?: ""
+        get() = manualAccessToken.takeUnless { it.isNullOrBlank() }
+            ?: webViewCookieManager.getCookie(baseUrl)
+                ?.split("; ")
+                ?.firstOrNull { it.startsWith("access_token=") }
+                ?.replace("access_token=", "") ?: ""
 
     // Cdns
 
@@ -166,6 +169,13 @@ open class NHentai(
             key = API_KEY
             title = "API key（推荐）"
             summary = "推荐用于绕开 WebView 登录和 CAPTCHA。登录网页后到 Profile > Settings > API Keys 创建并填入。"
+            setDefaultValue("")
+        }.let(screen::addPreference)
+
+        EditTextPreference(screen.context).apply {
+            key = ACCESS_TOKEN
+            title = "Access token（备用）"
+            summary = "找不到 API key 时使用。只填写你自己的 nHentai access_token Cookie，不要分享给别人。"
             setDefaultValue("")
         }.let(screen::addPreference)
 
@@ -425,6 +435,7 @@ open class NHentai(
 
     companion object {
         const val API_KEY = "api_key"
+        private const val ACCESS_TOKEN = "access_token"
         const val PREFIX_ID_SEARCH = "id:"
         const val SOURCE_ID_EN = 6316214103987364001L
         const val SOURCE_ID_JA = 6316214103987364002L

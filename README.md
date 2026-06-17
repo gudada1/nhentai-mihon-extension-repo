@@ -11,6 +11,7 @@
 - 收藏合并到同一个源的筛选项：`只显示我的收藏`
 - 筛选、源设置、详情描述已中文化
 - 收藏接口支持 API key 或 Mihon WebView 本地登录 Cookie
+- 找不到 API key 时，可在源设置中手动填写自己的 `access_token` Cookie 作为备用
 - API key 设置会从旧版多个源自动迁移到共享设置
 
 ## 登录说明
@@ -19,6 +20,7 @@
 
 - 推荐：在普通浏览器登录 nHentai，到 Profile > Settings > API Keys 创建 API key，然后填入源设置
 - 备用：打开源的 WebView 并登录 nHentai
+- 备用：如果 API key 页面找不到且 WebView CAPTCHA 失败，可从你自己已登录的浏览器里复制 `access_token` Cookie，填入源设置的 `Access token（备用）`
 
 如果 WebView 登录提示 `Failed to load CAPTCHA script`，通常是系统 WebView、代理、DNS 或去广告工具拦截了 hCaptcha。请优先使用 API key；也可以尝试更新 Android System WebView/Chrome，并确保 `hcaptcha.com`、`js.hcaptcha.com` 没有被拦截。
 
