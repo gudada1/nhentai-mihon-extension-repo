@@ -257,18 +257,19 @@ open class NHentai(
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         val filterList = if (filters.isEmpty()) getFilterList() else filters
-        val nhLangSearch = if (nhLang.isBlank()) "" else "language:$nhLang "
+        val normalizedQuery = NHSearchAliases.normalizeQuery(query)
+        val languageQuery = resolveSearchLanguageQuery(filterList, normalizedQuery)
         val advQuery = combineQuery(filterList)
         val favoriteFilter = filterList.firstInstanceOrNull<FavoriteFilter>()
         val requestPage = resolveRequestPage(page, filterList)
 
         if (favoriteFilter?.state == true) {
-            return favoritesMangaRequest(requestPage, "$query $advQuery".trim())
+            return favoritesMangaRequest(requestPage, listOf(normalizedQuery, languageQuery, advQuery).toNhQuery())
         } else {
             val url = "$apiUrl/search".toHttpUrl().newBuilder()
                 // Blank query (Multi + sort by popular month/week/day) shows a 404 page
                 // Searching for `""` is a hacky way to return everything without any filtering
-                .addQueryParameter("query", "$query $nhLangSearch$advQuery".ifBlank { "\"\"" })
+                .addQueryParameter("query", listOf(normalizedQuery, languageQuery, advQuery).toNhQuery().ifBlank { "\"\"" })
                 .addQueryParameter("page", requestPage.toString())
 
             filterList.firstInstanceOrNull<SortFilter>()?.let { f ->
@@ -301,16 +302,29 @@ open class NHentai(
                 .map(String::trim)
                 .filterNot(String::isBlank)
                 .forEach { tag ->
+                    val normalizedTag = NHSearchAliases.normalizeFilterValue(tag.removePrefix("-"), filter.queryName)
                     val shouldQuoteValue = !(filter.queryName == "pages" || filter.queryName == "uploaded")
                     if (tag.startsWith("-")) append("-")
                     append(filter.queryName, ':')
                     if (shouldQuoteValue) append('"')
-                    append(tag.removePrefix("-"))
+                    append(normalizedTag)
                     if (shouldQuoteValue) append('"')
                     append(" ")
                 }
         }
     }
+
+    private fun resolveSearchLanguageQuery(filters: FilterList, query: String): String {
+        if (LANGUAGE_QUERY_REGEX.containsMatchIn(query)) return ""
+
+        return when (val selected = filters.firstInstanceOrNull<SearchLanguageFilter>()?.toUriPart().orEmpty()) {
+            SEARCH_LANGUAGE_SOURCE -> if (nhLang.isBlank()) "" else "language:$nhLang"
+            "" -> ""
+            else -> "language:$selected"
+        }
+    }
+
+    private fun List<String>.toNhQuery(): String = filter(String::isNotBlank).joinToString(" ")
 
     protected fun favoritesMangaRequest(page: Int, query: String = ""): Request {
         val url = "$apiUrl/favorites".toHttpUrl().newBuilder()
@@ -408,6 +422,7 @@ open class NHentai(
 
     // Filters
     override fun getFilterList(): FilterList = FilterList(
+        Filter.Header("关键词支持部分中文别名，例如作品名、角色名、常见标签会自动转为英文搜索语法。"),
         Filter.Header("多个条件用英文逗号 (,) 分隔"),
         Filter.Header("前面加减号 (-) 表示排除"),
         TagFilter(),
@@ -423,6 +438,7 @@ open class NHentai(
         PagesFilter(),
 
         Filter.Separator(),
+        SearchLanguageFilter(),
         SortFilter(
             SORT_OPTIONS.indexOfFirst { it.second == preferences.getString(SORT_PREF, "popular") }
                 .coerceAtLeast(0),
@@ -453,6 +469,8 @@ open class NHentai(
     class StartPagePresetFilter(default: Int) : UriPartFilter("快捷跳页（优先于手动输入）", START_PAGE_PRESET_OPTIONS, default)
 
     private class FavoriteFilter : Filter.CheckBox("只显示我的收藏", false)
+
+    private class SearchLanguageFilter : UriPartFilter("搜索语言", SEARCH_LANGUAGE_OPTIONS, 0)
 
     private class SortFilter(default: Int) : UriPartFilter("排序", SORT_OPTIONS, default)
 
@@ -488,6 +506,8 @@ open class NHentai(
         private const val RATE_LIMIT_MAX_PERMITS = 10
         private const val RATE_LIMIT_MIN_PERIOD_SECONDS = 1L
         private const val RATE_LIMIT_MAX_PERIOD_SECONDS = 60L
+        private const val SEARCH_LANGUAGE_SOURCE = "__source__"
+        private val LANGUAGE_QUERY_REGEX = Regex("""(^|\s)-?language:""")
         private val RATE_LIMIT_OPTIONS = arrayOf(
             Pair("0.25 次/秒", "1/4"),
             Pair("0.5 次/秒", "1/2"),
@@ -496,6 +516,14 @@ open class NHentai(
             Pair("4 次/秒（建议配合 API key）", "4/1"),
         )
         private const val TITLE_PREF = "标题显示"
+
+        private val SEARCH_LANGUAGE_OPTIONS = arrayOf(
+            Pair("全部语言（关键词默认）", ""),
+            Pair("中文", "chinese"),
+            Pair("英文", "english"),
+            Pair("日文", "japanese"),
+            Pair("跟随首页语言", SEARCH_LANGUAGE_SOURCE),
+        )
 
         private val SORT_OPTIONS = arrayOf(
             Pair("热门：全部时间", "popular"),
@@ -698,10 +726,11 @@ class NHentaiFavorites(
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         val filterList = if (filters.isEmpty()) getFilterList() else filters
+        val normalizedQuery = NHSearchAliases.normalizeQuery(query)
         val advQuery = combineQuery(filterList)
         val requestPage = resolveRequestPage(page, filterList)
 
-        return favoritesMangaRequest(requestPage, "$query $advQuery".trim())
+        return favoritesMangaRequest(requestPage, listOf(normalizedQuery, advQuery).filter(String::isNotBlank).joinToString(" "))
     }
 
     override fun getFilterList(): FilterList = FilterList(
