@@ -10,9 +10,8 @@ $metadataDir = Join-Path $RepoRoot 'metadata'
 $repoPath = Join-Path $RepoRoot 'repo.json'
 $indexPath = Join-Path $RepoRoot 'index.min.json'
 $indexV2Path = Join-Path $RepoRoot 'index-v2.min.json'
-$cacheBustedIndexDir = Join-Path $RepoRoot 'v2'
-$cacheBustedIndexPath = Join-Path $cacheBustedIndexDir 'index.min.json'
-$cacheBustedRepoPath = Join-Path $cacheBustedIndexDir 'repo.json'
+$cacheBustedIndexDirNames = @('v2', 'v3')
+$latestCacheBustedIndexDirName = $cacheBustedIndexDirNames[-1]
 $aaptCandidates = @(
     (Join-Path $env:ANDROID_HOME 'build-tools\37.0.0\aapt.exe'),
     (Join-Path $env:ANDROID_HOME 'build-tools\36.0.0\aapt.exe'),
@@ -308,18 +307,23 @@ if (-not $json) {
 }
 
 $repo = Get-Content -LiteralPath $repoPath -Raw -Encoding UTF8 | ConvertFrom-Json
-$indexV2Url = "$RawBaseUrl/v2/index.min.json"
+$indexV2Url = "$RawBaseUrl/$latestCacheBustedIndexDirName/index.min.json"
 $repoMetadataJson = ConvertTo-Json -InputObject (New-RepoMetadata $repo $indexV2Url) -Depth 20 -Compress
 $v2Json = ConvertTo-Json -InputObject (New-V2Store $repo @($entries) $RawBaseUrl) -Depth 30 -Compress
 
 [System.IO.File]::WriteAllText($indexPath, $json, [System.Text.UTF8Encoding]::new($false))
 [System.IO.File]::WriteAllText($repoPath, $repoMetadataJson, [System.Text.UTF8Encoding]::new($false))
 [System.IO.File]::WriteAllText($indexV2Path, $v2Json, [System.Text.UTF8Encoding]::new($false))
-New-Item -ItemType Directory -Force -Path $cacheBustedIndexDir | Out-Null
-[System.IO.File]::WriteAllText($cacheBustedIndexPath, $v2Json, [System.Text.UTF8Encoding]::new($false))
-[System.IO.File]::WriteAllText($cacheBustedRepoPath, $repoMetadataJson, [System.Text.UTF8Encoding]::new($false))
+foreach ($cacheBustedIndexDirName in $cacheBustedIndexDirNames) {
+    $cacheBustedIndexDir = Join-Path $RepoRoot $cacheBustedIndexDirName
+    $cacheBustedIndexPath = Join-Path $cacheBustedIndexDir 'index.min.json'
+    $cacheBustedRepoPath = Join-Path $cacheBustedIndexDir 'repo.json'
+    New-Item -ItemType Directory -Force -Path $cacheBustedIndexDir | Out-Null
+    [System.IO.File]::WriteAllText($cacheBustedIndexPath, $v2Json, [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($cacheBustedRepoPath, $repoMetadataJson, [System.Text.UTF8Encoding]::new($false))
+    Write-Output "Generated $cacheBustedIndexPath with $($entries.Count) v2 entries."
+    Write-Output "Generated $cacheBustedRepoPath."
+}
 Write-Output "Generated $indexPath with $($entries.Count) entries."
 Write-Output "Generated $repoPath."
 Write-Output "Generated $indexV2Path with $($entries.Count) v2 entries."
-Write-Output "Generated $cacheBustedIndexPath with $($entries.Count) v2 entries."
-Write-Output "Generated $cacheBustedRepoPath."
