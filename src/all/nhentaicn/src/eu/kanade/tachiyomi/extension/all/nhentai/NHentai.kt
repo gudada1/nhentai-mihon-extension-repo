@@ -261,7 +261,8 @@ open class NHentai(
         val languageQuery = resolveSearchLanguageQuery(filterList, normalizedQuery)
         val advQuery = combineQuery(filterList)
         val favoriteFilter = filterList.firstInstanceOrNull<FavoriteFilter>()
-        val requestPage = resolveRequestPage(page, filterList)
+        val useStartPage = favoriteFilter?.state == true || (normalizedQuery.isBlank() && advQuery.isBlank())
+        val requestPage = resolveRequestPage(page, filterList, useStartPage)
 
         if (favoriteFilter?.state == true) {
             return favoritesMangaRequest(requestPage, listOf(normalizedQuery, languageQuery, advQuery).toNhQuery())
@@ -279,7 +280,7 @@ open class NHentai(
         }
     }
 
-    protected fun resolveRequestPage(page: Int, filters: FilterList): Int {
+    protected fun resolveRequestPage(page: Int, filters: FilterList, useConfiguredStartPage: Boolean = true): Int {
         val typedPage = filters.firstInstanceOrNull<StartPageFilter>()?.state?.trim().orEmpty()
         val presetFilter = filters.firstInstanceOrNull<StartPagePresetFilter>()
         val presetPage = presetFilter?.toUriPart()?.toIntOrNull()
@@ -288,6 +289,8 @@ open class NHentai(
             .putString(START_PAGE_PREF, typedPage)
             .putInt(START_PAGE_PRESET_PREF, presetFilter?.state ?: 0)
             .apply()
+
+        if (!useConfiguredStartPage) return page
 
         val startPage = (presetPage ?: typedPage.toIntOrNull())
             ?.coerceAtLeast(1)
@@ -448,6 +451,7 @@ open class NHentai(
                 .coerceIn(0, START_PAGE_PRESET_OPTIONS.lastIndex),
         ),
         StartPageFilter(preferences.getString(START_PAGE_PREF, "").orEmpty()),
+        Filter.Header("起始页用于收藏/空搜索浏览；普通关键词搜索会自动从第 1 页开始。"),
         Filter.Header("起始页为空时从第 1 页开始；输入 700 时第一页就是第 700 页，下一页是 701。"),
         Filter.Header("勾选后显示账号收藏，可继续配合上面的条件搜索收藏。"),
         Filter.Header("只显示收藏时会忽略排序"),
