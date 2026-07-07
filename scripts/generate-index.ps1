@@ -307,7 +307,7 @@ if (-not $json) {
 }
 
 $repo = Get-Content -LiteralPath $repoPath -Raw -Encoding UTF8 | ConvertFrom-Json
-$indexV2Url = "$RawBaseUrl/$latestCacheBustedIndexDirName/index.min.json"
+$indexV2Url = "$RawBaseUrl/$latestCacheBustedIndexDirName/index-v2.min.json"
 $repoMetadataJson = ConvertTo-Json -InputObject (New-RepoMetadata $repo $indexV2Url) -Depth 20 -Compress
 $v2Json = ConvertTo-Json -InputObject (New-V2Store $repo @($entries) $RawBaseUrl) -Depth 30 -Compress
 
@@ -317,11 +317,16 @@ $v2Json = ConvertTo-Json -InputObject (New-V2Store $repo @($entries) $RawBaseUrl
 foreach ($cacheBustedIndexDirName in $cacheBustedIndexDirNames) {
     $cacheBustedIndexDir = Join-Path $RepoRoot $cacheBustedIndexDirName
     $cacheBustedIndexPath = Join-Path $cacheBustedIndexDir 'index.min.json'
+    $cacheBustedIndexV2Path = Join-Path $cacheBustedIndexDir 'index-v2.min.json'
     $cacheBustedRepoPath = Join-Path $cacheBustedIndexDir 'repo.json'
+    $cacheBustedIndexV2Url = "$RawBaseUrl/$cacheBustedIndexDirName/index-v2.min.json"
+    $cacheBustedRepoMetadataJson = ConvertTo-Json -InputObject (New-RepoMetadata $repo $cacheBustedIndexV2Url) -Depth 20 -Compress
     New-Item -ItemType Directory -Force -Path $cacheBustedIndexDir | Out-Null
-    [System.IO.File]::WriteAllText($cacheBustedIndexPath, $v2Json, [System.Text.UTF8Encoding]::new($false))
-    [System.IO.File]::WriteAllText($cacheBustedRepoPath, $repoMetadataJson, [System.Text.UTF8Encoding]::new($false))
-    Write-Output "Generated $cacheBustedIndexPath with $($entries.Count) v2 entries."
+    [System.IO.File]::WriteAllText($cacheBustedIndexPath, $json, [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($cacheBustedIndexV2Path, $v2Json, [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($cacheBustedRepoPath, $cacheBustedRepoMetadataJson, [System.Text.UTF8Encoding]::new($false))
+    Write-Output "Generated $cacheBustedIndexPath with $($entries.Count) legacy entries."
+    Write-Output "Generated $cacheBustedIndexV2Path with $($entries.Count) v2 entries."
     Write-Output "Generated $cacheBustedRepoPath."
 }
 Write-Output "Generated $indexPath with $($entries.Count) entries."
