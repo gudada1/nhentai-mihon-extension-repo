@@ -206,6 +206,7 @@ open class NHentai(
     // Latest
 
     override fun latestUpdatesRequest(page: Int): Request {
+        rememberLastPage(page)
         val url = if (nhLang.isBlank()) {
             "$apiUrl/galleries".toHttpUrl().newBuilder()
         } else {
@@ -221,6 +222,7 @@ open class NHentai(
     // Popular
 
     override fun popularMangaRequest(page: Int): Request {
+        rememberLastPage(page)
         val url = "$apiUrl/search".toHttpUrl().newBuilder()
             .addQueryParameter("query", if (nhLang.isBlank()) "\"\"" else "language:$nhLang")
             .addQueryParameter("sort", "popular")
@@ -285,18 +287,22 @@ open class NHentai(
         val presetFilter = filters.firstInstanceOrNull<StartPagePresetFilter>()
         val presetPage = presetFilter?.toUriPart()?.toIntOrNull()
 
+        val requestPage = if (!useConfiguredStartPage) {
+            page
+        } else {
+            (presetPage ?: typedPage.toIntOrNull())
+                ?.coerceAtLeast(1)
+                ?.let { it + page - 1 }
+                ?: page
+        }
+
         preferences.edit()
             .putString(START_PAGE_PREF, typedPage)
             .putInt(START_PAGE_PRESET_PREF, presetFilter?.state ?: 0)
+            .putInt(LAST_PAGE_PREF, requestPage)
             .apply()
 
-        if (!useConfiguredStartPage) return page
-
-        val startPage = (presetPage ?: typedPage.toIntOrNull())
-            ?.coerceAtLeast(1)
-            ?: return page
-
-        return startPage + page - 1
+        return requestPage
     }
 
     protected fun combineQuery(filters: FilterList): String = buildString {
@@ -425,6 +431,7 @@ open class NHentai(
 
     // Filters
     override fun getFilterList(): FilterList = FilterList(
+        Filter.Header("当前浏览页：第 ${getLastPagePref()} 页（上次请求）"),
         Filter.Header("关键词支持部分中文别名，例如作品名、角色名、常见标签会自动转为英文搜索语法。"),
         Filter.Header("多个条件用英文逗号 (,) 分隔"),
         Filter.Header("前面加减号 (-) 表示排除"),
@@ -505,6 +512,7 @@ open class NHentai(
         private const val RATE_LIMIT_PREF = "rate_limit_pref"
         private const val START_PAGE_PREF = "start_page_pref"
         private const val START_PAGE_PRESET_PREF = "start_page_preset_pref"
+        private const val LAST_PAGE_PREF = "last_page_pref"
         private const val RATE_LIMIT_DEFAULT = "1/1"
         private const val RATE_LIMIT_MIN_PERMITS = 1
         private const val RATE_LIMIT_MAX_PERMITS = 10
@@ -558,6 +566,12 @@ open class NHentai(
         )
 
         private const val SORT_PREF = "搜索默认排序"
+    }
+
+    protected fun getLastPagePref(): Int = preferences.getInt(LAST_PAGE_PREF, 1).coerceAtLeast(1)
+
+    protected fun rememberLastPage(page: Int) {
+        preferences.edit().putInt(LAST_PAGE_PREF, page.coerceAtLeast(1)).apply()
     }
 
     private fun sharedPreferencesWithMigration(): SharedPreferences {
@@ -724,9 +738,15 @@ class NHentaiFavorites(
     sourceId: Long,
 ) : NHentai(lang, nhLang, sourceId, "NHentai 我的收藏") {
 
-    override fun popularMangaRequest(page: Int): Request = favoritesMangaRequest(page)
+    override fun popularMangaRequest(page: Int): Request {
+        rememberLastPage(page)
+        return favoritesMangaRequest(page)
+    }
 
-    override fun latestUpdatesRequest(page: Int): Request = favoritesMangaRequest(page)
+    override fun latestUpdatesRequest(page: Int): Request {
+        rememberLastPage(page)
+        return favoritesMangaRequest(page)
+    }
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         val filterList = if (filters.isEmpty()) getFilterList() else filters
@@ -738,6 +758,7 @@ class NHentaiFavorites(
     }
 
     override fun getFilterList(): FilterList = FilterList(
+        Filter.Header("当前浏览页：第 ${getLastPagePref()} 页（上次请求）"),
         Filter.Header("在我的收藏中搜索；多个条件用英文逗号 (,) 分隔"),
         Filter.Header("前面加减号 (-) 表示排除"),
         TagFilter(),

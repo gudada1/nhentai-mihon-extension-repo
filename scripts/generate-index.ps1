@@ -10,7 +10,7 @@ $metadataDir = Join-Path $RepoRoot 'metadata'
 $repoPath = Join-Path $RepoRoot 'repo.json'
 $indexPath = Join-Path $RepoRoot 'index.min.json'
 $indexV2Path = Join-Path $RepoRoot 'index-v2.min.json'
-$cacheBustedIndexDirNames = @('v2', 'v3')
+$cacheBustedIndexDirNames = @('v2', 'v3', 'v4')
 $latestCacheBustedIndexDirName = $cacheBustedIndexDirNames[-1]
 $aaptCandidates = @(
     (Join-Path $env:ANDROID_HOME 'build-tools\37.0.0\aapt.exe'),

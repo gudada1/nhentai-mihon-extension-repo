@@ -154,40 +154,54 @@ abstract class EHentai(
 
     private fun languageTag(enforceLanguageFilter: Boolean = false): String = if (enforceLanguageFilter || getEnforceLanguagePref()) "language:$ehLang" else ""
 
-    override fun popularMangaRequest(page: Int) = if (isLangNatural()) {
-        exGet("$baseUrl/?f_search=${languageTag()}&f_srdd=5&f_sr=on", page)
-    } else {
-        latestUpdatesRequest(page)
+    override fun popularMangaRequest(page: Int): Request {
+        rememberDisplayPage(page)
+        return if (isLangNatural()) {
+            exGet("$baseUrl/?f_search=${languageTag()}&f_srdd=5&f_sr=on", page)
+        } else {
+            latestUpdatesRequest(page)
+        }
     }
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
-        val enforceLanguageFilter = filters.find { it is EnforceLanguageFilter }?.state == true
+        val filterList = if (filters.isEmpty()) getFilterList() else filters
+        rememberDisplayPage(page, filterList)
+
+        val enforceLanguageFilter = filterList.find { it is EnforceLanguageFilter }?.state == true
         val uri = Uri.parse("$baseUrl$QUERY_PREFIX").buildUpon()
         var modifiedQuery = when {
             !isLangNatural() -> query
             query.isBlank() -> languageTag(enforceLanguageFilter)
             else -> languageTag(enforceLanguageFilter).let { if (it.isNotEmpty()) "$query,$it" else query }
         }
-        filters.filterIsInstance<TextFilter>().forEach { filter ->
+        filterList.filterIsInstance<TextFilter>().forEach { filter ->
             if (filter.state.isNotEmpty()) {
                 val splitted = filter.state.split(",").filter(String::isNotBlank)
                 if (splitted.size < 2 && filter.type != "tags") {
-                    modifiedQuery += " ${filter.type}:\"${filter.state.replace(" ", "+")}\""
+                    modifiedQuery = modifiedQuery.withSearchToken(formatTagSearch(filter.type, filter.state))
                 } else {
                     splitted.forEach { tag ->
                         val trimmed = tag.trim().lowercase()
-                        modifiedQuery += if (trimmed.startsWith('-')) {
-                            " -${filter.type}:\"${trimmed.removePrefix("-").replace(" ", "+")}\""
+                        modifiedQuery = if (trimmed.startsWith('-')) {
+                            modifiedQuery.withSearchToken(formatTagSearch(filter.type, trimmed.removePrefix("-"), true))
                         } else {
-                            " ${filter.type}:\"${trimmed.replace(" ", "+")}\""
+                            modifiedQuery.withSearchToken(formatTagSearch(filter.type, trimmed))
                         }
                     }
                 }
             }
         }
-        uri.appendQueryParameter("f_search", modifiedQuery)
+        if (filterList.filterIsInstance<ExcludeAiFilter>().firstOrNull()?.state == true) {
+            modifiedQuery = modifiedQuery
+                .withSearchToken(formatTagSearch("tag", "ai generated", true))
+                .withSearchToken(formatTagSearch("tag", "ai assisted", true))
+        }
+        filterList.filterIsInstance<AnimatedFilter>().firstOrNull()?.queryTokens()?.forEach { token ->
+            modifiedQuery = modifiedQuery.withSearchToken(token)
+        }
+        uri.appendQueryParameter("f_search", modifiedQuery.trim())
         // when attempting to search with no genres selected, will auto select all genres
-        filters.filterIsInstance<GenreGroup>().firstOrNull()?.state?.let {
+        filterList.filterIsInstance<GenreGroup>().firstOrNull()?.state?.let {
             // variable to to check is any genres are selected
             val check = it.any { option -> option.state } // or it.any(GenreOption::state)
             // if no genres are selected by the user set all genres to on
@@ -198,7 +212,7 @@ abstract class EHentai(
             }
         }
 
-        filters.forEach {
+        filterList.forEach {
             if (it is UriFilter) it.addToUri(uri)
         }
 
@@ -209,7 +223,10 @@ abstract class EHentai(
         return exGet(uri.toString(), page)
     }
 
-    override fun latestUpdatesRequest(page: Int) = exGet(baseUrl, page)
+    override fun latestUpdatesRequest(page: Int): Request {
+        rememberDisplayPage(page)
+        return exGet(baseUrl, page)
+    }
 
     override fun popularMangaParse(response: Response) = genericMangaParse(response)
     override fun searchMangaParse(response: Response) = genericMangaParse(response)
@@ -240,6 +257,44 @@ abstract class EHentai(
             }
         }
     }
+
+    private fun rememberDisplayPage(page: Int, filters: FilterList? = null) {
+        val typedPage = filters
+            ?.filterIsInstance<StartPageFilter>()
+            ?.firstOrNull()
+            ?.state
+            ?.trim()
+            ?: getStartPagePref()
+        val presetState = filters
+            ?.filterIsInstance<StartPagePresetFilter>()
+            ?.firstOrNull()
+            ?.state
+            ?: getStartPagePresetPref()
+        val presetPage = START_PAGE_PRESET_OPTIONS
+            .getOrNull(presetState)
+            ?.second
+            ?.toIntOrNull()
+        val startPage = (presetPage ?: typedPage.toIntOrNull())?.coerceAtLeast(1)
+        val displayPage = ((startPage ?: 1) + page - 1).coerceAtLeast(1)
+
+        preferences.edit().apply {
+            if (filters != null) {
+                putString("${START_PAGE_PREF_KEY}_$lang", typedPage)
+                putInt(
+                    "${START_PAGE_PRESET_PREF_KEY}_$lang",
+                    presetState.coerceIn(0, START_PAGE_PRESET_OPTIONS.lastIndex),
+                )
+            }
+            putInt("${LAST_DISPLAY_PAGE_PREF_KEY}_$lang", displayPage)
+        }.apply()
+    }
+
+    private fun formatTagSearch(type: String, value: String, exclude: Boolean = false): String {
+        val prefix = if (exclude) "-" else ""
+        return "$prefix$type:\"${value.trim().replace(" ", "+")}\""
+    }
+
+    private fun String.withSearchToken(token: String): String = if (isBlank()) token else "$this $token"
 
     /**
      * Parse gallery page to metadata model
@@ -473,6 +528,14 @@ abstract class EHentai(
         EnforceLanguageFilter(getEnforceLanguagePref()),
         Favorites(),
         Watched(),
+        Filter.Separator(),
+        Filter.Header("当前浏览页：第 ${getLastDisplayPagePref()} 页（上次请求）"),
+        StartPagePresetFilter(getStartPagePresetPref()),
+        StartPageFilter(getStartPagePref()),
+        Filter.Header("起始页用于保存和显示浏览进度；E-Hentai 使用游标翻页，不能直接跳到远处页。"),
+        Filter.Separator(),
+        ExcludeAiFilter(),
+        AnimatedFilter(),
         GenreGroup(),
         Filter.Header("多个标签用英文逗号 (,) 分隔"),
         Filter.Header("前面加减号 (-) 表示排除"),
@@ -484,6 +547,32 @@ abstract class EHentai(
     )
 
     internal open class TextFilter(name: String, val type: String, val specific: String = "") : Text(name)
+
+    private class StartPageFilter(default: String = "") : Text("起始页（手动输入）", default)
+
+    private class StartPagePresetFilter(default: Int) :
+        Select<String>(
+            "快捷页数（优先于手动输入）",
+            START_PAGE_PRESET_OPTIONS.map { it.first }.toTypedArray(),
+            default,
+        )
+
+    private class ExcludeAiFilter : CheckBox("排除 AI 图", false)
+
+    private class AnimatedFilter :
+        Select<String>(
+            "动图",
+            ANIMATED_OPTIONS.map { it.first }.toTypedArray(),
+        ) {
+        fun queryTokens(): List<String> = when (ANIMATED_OPTIONS.getOrNull(state)?.second) {
+            ANIMATED_INCLUDE -> listOf("tag:\"animated\"")
+            ANIMATED_EXCLUDE -> listOf(
+                "-tag:\"animated\"",
+                "-tag:\"gif\"",
+            )
+            else -> emptyList()
+        }
+    }
 
     class Watched :
         CheckBox("已关注列表"),
@@ -625,6 +714,10 @@ abstract class EHentai(
         const val TR_SUFFIX = "TR"
 
         // Preferences vals
+        private const val START_PAGE_PREF_KEY = "START_PAGE"
+        private const val START_PAGE_PRESET_PREF_KEY = "START_PAGE_PRESET"
+        private const val LAST_DISPLAY_PAGE_PREF_KEY = "LAST_DISPLAY_PAGE"
+
         private const val ENFORCE_LANGUAGE_PREF_KEY = "ENFORCE_LANGUAGE"
         private const val ENFORCE_LANGUAGE_PREF_TITLE = "强制匹配语言"
         private const val ENFORCE_LANGUAGE_PREF_SUMMARY = "勾选后浏览时只显示匹配当前语言标签的作品"
@@ -654,6 +747,34 @@ abstract class EHentai(
         private const val FORCE_EH_TITLE = "强制使用 E-Hentai"
         private const val FORCE_EH_SUMMARY = "强制使用 e-hentai.org，避免进入 exhentai.org 内容"
         private const val FORCE_EH_DEFAULT_VALUE = true
+
+        private val START_PAGE_PRESET_OPTIONS = arrayOf(
+            Pair("手动输入", ""),
+            Pair("第 1 页", "1"),
+            Pair("第 25 页", "25"),
+            Pair("第 50 页", "50"),
+            Pair("第 100 页", "100"),
+            Pair("第 150 页", "150"),
+            Pair("第 200 页", "200"),
+            Pair("第 250 页", "250"),
+            Pair("第 300 页", "300"),
+            Pair("第 350 页", "350"),
+            Pair("第 400 页", "400"),
+            Pair("第 450 页", "450"),
+            Pair("第 500 页", "500"),
+            Pair("第 550 页", "550"),
+            Pair("第 600 页", "600"),
+            Pair("第 650 页", "650"),
+            Pair("第 700 页", "700"),
+        )
+
+        private const val ANIMATED_INCLUDE = "include"
+        private const val ANIMATED_EXCLUDE = "exclude"
+        private val ANIMATED_OPTIONS = arrayOf(
+            Pair("不限", ""),
+            Pair("只显示动图", ANIMATED_INCLUDE),
+            Pair("排除动图", ANIMATED_EXCLUDE),
+        )
     }
 
     // Preferences
@@ -715,6 +836,16 @@ abstract class EHentai(
     private fun getEnforceLanguagePref(): Boolean = preferences.getBoolean("${ENFORCE_LANGUAGE_PREF_KEY}_$lang", ENFORCE_LANGUAGE_PREF_DEFAULT_VALUE)
 
     private fun getOriginalImagePref(): Boolean = preferences.getBoolean("${ORIGINAL_IMAGE_PREF_KEY}_$lang", ORIGINAL_IMAGE_PREF_DEFAULT_VALUE)
+
+    private fun getStartPagePref(): String = preferences.getString("${START_PAGE_PREF_KEY}_$lang", "").orEmpty()
+
+    private fun getStartPagePresetPref(): Int = preferences
+        .getInt("${START_PAGE_PRESET_PREF_KEY}_$lang", 0)
+        .coerceIn(0, START_PAGE_PRESET_OPTIONS.lastIndex)
+
+    private fun getLastDisplayPagePref(): Int = preferences
+        .getInt("${LAST_DISPLAY_PAGE_PREF_KEY}_$lang", 1)
+        .coerceAtLeast(1)
 
     private fun getCookieValue(cookieTitle: String, defaultValue: String, prefKey: String): String {
         val cookies = webViewCookieManager.getCookie("https://forums.e-hentai.org")
