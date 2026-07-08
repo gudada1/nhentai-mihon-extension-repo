@@ -6,6 +6,7 @@ import eu.kanade.tachiyomi.source.model.FilterList
 fun getFilters(): FilterList = FilterList(
     Filter.Header("多个标签用英文逗号 (,) 分隔"),
     Filter.Header("前面加减号 (-) 表示排除"),
+    ChineseOnlyFilter(),
     TextFilter("女性标签", "female"),
     TextFilter("男性标签", "male"),
     TextFilter("其他标签", "other"),
@@ -20,6 +21,7 @@ fun getFilters(): FilterList = FilterList(
 )
 
 internal class TextFilter(name: String, val tag: String) : Filter.Text(name)
+internal class ChineseOnlyFilter : Filter.CheckBox("只显示中文（脚本规则）", true)
 internal class OptionFilter(val value: List<Pair<String, String>> = options) : Filter.Select<String>("搜索范围", options.map { it.first }.toTypedArray()) {
     fun getValue() = options[state].second
 }

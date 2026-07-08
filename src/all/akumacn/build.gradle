@@ -1,7 +1,7 @@
 ext {
     extName = 'Akuma CN'
     extClass = '.AkumaFactory'
-    extVersionCode = 11
+    extVersionCode = 12
     isNsfw = true
 }
 

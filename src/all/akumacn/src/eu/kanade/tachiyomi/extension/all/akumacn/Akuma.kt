@@ -117,6 +117,17 @@ class Akuma(
     private val shortenTitleRegex = Regex("""(\[[^]]*]|[({][^)}]*[)}])""")
     private fun String.shortenTitle() = this.replace(shortenTitleRegex, "").trim()
 
+    private fun browseLanguage(): String = if (lang == "all") "chinese" else akumaLang
+
+    private fun searchLanguage(filters: FilterList): String? {
+        val chineseOnly = filters.filterIsInstance<ChineseOnlyFilter>().firstOrNull()?.state == true
+        return when {
+            lang != "all" -> akumaLang
+            chineseOnly -> "chinese"
+            else -> null
+        }
+    }
+
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
         SwitchPreferenceCompat(screen.context).apply {
             key = PREF_TITLE
@@ -137,9 +148,9 @@ class Akuma(
         } else {
             url.addQueryParameter("cursor", nextHash)
         }
-        if (lang != "all") {
+        browseLanguage().takeIf { it.isNotBlank() }?.let {
             // append like `q=language:english$`
-            url.addQueryParameter("q", "language:$akumaLang$")
+            url.addQueryParameter("q", "language:$it$")
         }
 
         return POST(url.toString(), headers, payload)
@@ -197,8 +208,8 @@ class Akuma(
 
         val finalQuery: MutableList<String> = mutableListOf(query)
 
-        if (lang != "all") {
-            finalQuery.add("language:$akumaLang$")
+        searchLanguage(filters)?.let {
+            finalQuery.add("language:$it$")
         }
         filters.forEach { filter ->
             when (filter) {

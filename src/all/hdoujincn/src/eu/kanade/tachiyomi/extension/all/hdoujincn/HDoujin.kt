@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.extension.all.hdoujincn
 
 import CategoryFilter
+import ChineseOnlyFilter
 import SelectFilter
 import TagType
 import TextFilter
@@ -95,6 +96,17 @@ class HDoujin(
         .set("Referer", "$baseUrl/")
         .set("Origin", baseUrl)
 
+    private fun browseLanguage(): String = if (lang == "all") "chinese" else siteLang
+
+    private fun searchLanguage(filters: FilterList): String? {
+        val chineseOnly = filters.filterIsInstance<ChineseOnlyFilter>().firstOrNull()?.state == true
+        return when {
+            lang != "all" -> siteLang
+            chineseOnly -> "chinese"
+            else -> null
+        }
+    }
+
     private val context: Application by injectLazy()
     private val handler by lazy { Handler(Looper.getMainLooper()) }
     private var _clearance: String? = null
@@ -159,7 +171,7 @@ class HDoujin(
 
             val tags = getTagsPreference()
             val terms: MutableList<String> = mutableListOf()
-            if (lang != "all") terms += "language:\"^$siteLang\""
+            terms += "language:\"^${browseLanguage()}\""
             if (tags.isNotBlank()) terms += tags
 
             if (terms.isNotEmpty()) addQueryParameter("s", terms.joinToString(" "))
@@ -184,7 +196,7 @@ class HDoujin(
 
             val tags = getTagsPreference()
             val terms: MutableList<String> = mutableListOf()
-            if (lang != "all") terms += "language:\"^$siteLang\""
+            terms += "language:\"^${browseLanguage()}\""
             if (tags.isNotBlank()) terms += tags
 
             if (terms.isNotEmpty()) addQueryParameter("s", terms.joinToString(" "))
@@ -198,7 +210,7 @@ class HDoujin(
         val url = bookApiUrl.toHttpUrl().newBuilder().apply {
             val terms = mutableListOf(query.trim())
 
-            if (lang != "all") terms += "language:\"^$siteLang$\""
+            searchLanguage(filters)?.let { terms += "language:\"^$it$\"" }
             filters.forEach { filter ->
                 when (filter) {
                     is SelectFilter -> {

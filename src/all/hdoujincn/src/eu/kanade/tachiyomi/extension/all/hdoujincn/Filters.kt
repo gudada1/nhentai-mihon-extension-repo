@@ -5,6 +5,7 @@ import eu.kanade.tachiyomi.source.model.FilterList
 fun getFilters(): FilterList = FilterList(
     SelectFilter("排序", getSortsList),
     CategoryFilter("分类"),
+    ChineseOnlyFilter(),
     Filter.Separator(),
     TagType("包含标签匹配方式", "i"),
     TagType("排除标签匹配方式", "e"),
@@ -30,6 +31,7 @@ fun getFilters(): FilterList = FilterList(
 )
 
 class CheckBoxFilter(name: String, val value: Int, state: Boolean) : Filter.CheckBox(name, state)
+class ChineseOnlyFilter : Filter.CheckBox("只显示中文（脚本规则）", true)
 
 internal class CategoryFilter(name: String) :
     Filter.Group<CheckBoxFilter>(

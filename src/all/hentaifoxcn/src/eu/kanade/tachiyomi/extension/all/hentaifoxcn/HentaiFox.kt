@@ -99,9 +99,9 @@ class HentaiFox(
      * - use plus(+) for separate terms, as AND condition.
      * - use double quote(") to search for exact match.
      */
-    override fun buildQueryString(tags: List<String>, query: String): String {
+    override fun buildQueryString(tags: List<String>, query: String, language: String): String {
         val regexSpecialCharacters = Regex("""[^a-zA-Z0-9"]+(?=[a-zA-Z0-9"])""")
-        return (tags + query + mangaLang).filterNot { it.isBlank() }.joinToString("+") {
+        return (tags + query + language).filterNot { it.isBlank() }.joinToString("+") {
             it.trim().replace(regexSpecialCharacters, "+")
         }
     }

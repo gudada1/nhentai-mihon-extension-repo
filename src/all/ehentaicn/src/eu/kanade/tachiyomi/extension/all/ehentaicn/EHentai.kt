@@ -721,7 +721,7 @@ abstract class EHentai(
         private const val ENFORCE_LANGUAGE_PREF_KEY = "ENFORCE_LANGUAGE"
         private const val ENFORCE_LANGUAGE_PREF_TITLE = "强制匹配语言"
         private const val ENFORCE_LANGUAGE_PREF_SUMMARY = "勾选后浏览时只显示匹配当前语言标签的作品"
-        private const val ENFORCE_LANGUAGE_PREF_DEFAULT_VALUE = false
+        private const val ENFORCE_LANGUAGE_PREF_DEFAULT_VALUE = true
 
         private const val ORIGINAL_IMAGE_PREF_KEY = "ORIGINAL_IMAGE"
         private const val ORIGINAL_IMAGE_PREF_TITLE = "使用原图"

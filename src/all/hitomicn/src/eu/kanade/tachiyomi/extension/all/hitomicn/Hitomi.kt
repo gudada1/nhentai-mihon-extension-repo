@@ -62,9 +62,11 @@ class Hitomi(
         .set("referer", "$baseUrl/")
         .set("origin", baseUrl)
 
+    private fun browseLanguage(): String = if (nozomiLang == "all") "chinese" else nozomiLang
+
     override fun fetchPopularManga(page: Int): Observable<MangasPage> = Observable.fromCallable {
         runBlocking {
-            val entries = getGalleryIDsFromNozomi("popular", "year", nozomiLang, page.nextPageRange())
+            val entries = getGalleryIDsFromNozomi("popular", "year", browseLanguage(), page.nextPageRange())
                 .toMangaList()
 
             MangasPage(entries, entries.size >= 24)
@@ -73,7 +75,7 @@ class Hitomi(
 
     override fun fetchLatestUpdates(page: Int): Observable<MangasPage> = Observable.fromCallable {
         runBlocking {
-            val entries = getGalleryIDsFromNozomi(null, "index", nozomiLang, page.nextPageRange())
+            val entries = getGalleryIDsFromNozomi(null, "index", browseLanguage(), page.nextPageRange())
                 .toMangaList()
 
             MangasPage(entries, entries.size >= 24)
@@ -142,6 +144,11 @@ class Hitomi(
         filters: FilterList,
         language: String = "all",
     ): List<Int> = coroutineScope {
+        val searchLanguage = when {
+            language != "all" -> language
+            filters.filterIsInstance<ChineseOnlyFilter>().firstOrNull()?.state == true -> "chinese"
+            else -> language
+        }
         var sortBy: Pair<String?, String> = Pair(null, "index")
         var random = false
 
@@ -187,8 +194,8 @@ class Hitomi(
             }
         }
 
-        if (language != "all" && sortBy == Pair(null, "index") && !terms.any { it.contains(":") }) {
-            terms += "language:$language"
+        if (searchLanguage != "all" && sortBy == Pair(null, "index") && !terms.any { it.contains(":") }) {
+            terms += "language:$searchLanguage"
         }
 
         val positiveTerms = LinkedList<String>()
@@ -205,7 +212,7 @@ class Hitomi(
         val positiveResults = positiveTerms.map {
             async {
                 try {
-                    getGalleryIDsForQuery(it, language)
+                    getGalleryIDsForQuery(it, searchLanguage)
                 } catch (e: IllegalArgumentException) {
                     if (e.message?.equals("HTTP error 404") == true) {
                         throw Exception("Unknown query: \"$it\"")
@@ -219,7 +226,7 @@ class Hitomi(
         val negativeResults = negativeTerms.map {
             async {
                 try {
-                    getGalleryIDsForQuery(it, language)
+                    getGalleryIDsForQuery(it, searchLanguage)
                 } catch (e: IllegalArgumentException) {
                     if (e.message?.equals("HTTP error 404") == true) {
                         throw Exception("Unknown query: \"$it\"")
@@ -232,7 +239,7 @@ class Hitomi(
 
         val results = when {
             positiveTerms.isEmpty() || sortBy != Pair(null, "index")
-            -> getGalleryIDsFromNozomi(sortBy.first, sortBy.second, language)
+            -> getGalleryIDsFromNozomi(sortBy.first, sortBy.second, searchLanguage)
 
             else -> emptySet()
         }.toMutableSet()

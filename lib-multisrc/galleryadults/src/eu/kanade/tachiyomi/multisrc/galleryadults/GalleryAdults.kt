@@ -94,6 +94,13 @@ abstract class GalleryAdults(
     // Default to [mangaLang] won't filter anything
     protected open fun Element.mangaLang() = mangaLang
 
+    protected fun defaultBrowseMangaLang(): String = if (mangaLang == LANGUAGE_MULTI) LANGUAGE_CHINESE else mangaLang
+
+    private fun FilterList.searchMangaLang(): String {
+        val chineseOnly = firstInstanceOrNull<ChineseOnlyFilter>()?.state == true
+        return if (chineseOnly) LANGUAGE_CHINESE else mangaLang
+    }
+
     protected open fun HttpUrl.Builder.addPageUri(page: Int): HttpUrl.Builder {
         val url = toString()
         if (!url.endsWith('/') && !url.contains('?')) {
@@ -105,8 +112,9 @@ abstract class GalleryAdults(
 
     /* Popular */
     override fun popularMangaRequest(page: Int): Request {
+        val browseMangaLang = defaultBrowseMangaLang()
         val url = baseUrl.toHttpUrl().newBuilder().apply {
-            if (mangaLang.isNotBlank()) addPathSegments("language/$mangaLang")
+            if (browseMangaLang.isNotBlank()) addPathSegments("language/$browseMangaLang")
             if (supportsLatest) addPathSegment("popular")
             addPageUri(page)
         }
@@ -134,8 +142,9 @@ abstract class GalleryAdults(
 
     /* Latest */
     override fun latestUpdatesRequest(page: Int): Request {
+        val browseMangaLang = defaultBrowseMangaLang()
         val url = baseUrl.toHttpUrl().newBuilder().apply {
-            if (mangaLang.isNotBlank()) addPathSegments("language/$mangaLang")
+            if (browseMangaLang.isNotBlank()) addPathSegments("language/$browseMangaLang")
             addPageUri(page)
         }
         return GET(url.build(), headers)
@@ -295,7 +304,7 @@ abstract class GalleryAdults(
 
         val url = baseUrl.toHttpUrl().newBuilder().apply {
             addPathSegments("search/")
-            addEncodedQueryParameter(basicSearchKey, buildQueryString(selectedGenres.map { it.name }, query))
+            addEncodedQueryParameter(basicSearchKey, buildQueryString(selectedGenres.map { it.name }, query, filters.searchMangaLang()))
             if (sortOrderFilter?.state == 0) addQueryParameter("sort", "popular")
             addPageUri(page)
         }
@@ -316,6 +325,7 @@ abstract class GalleryAdults(
 
         // Intermediate search
         val categoryFilters = filters.firstInstanceOrNull<CategoryFilters>()
+        val searchMangaLang = filters.searchMangaLang()
 
         // Only for query string or multiple tags
         val url = "$baseUrl/search/".toHttpUrl().newBuilder().apply {
@@ -328,10 +338,10 @@ abstract class GalleryAdults(
             getLanguageURIs().forEach { pair ->
                 addQueryParameter(
                     pair.second,
-                    toBinary(mangaLang == pair.first || mangaLang == LANGUAGE_MULTI),
+                    toBinary(searchMangaLang == pair.first || searchMangaLang == LANGUAGE_MULTI),
                 )
             }
-            addEncodedQueryParameter(intermediateSearchKey, buildQueryString(selectedGenres.map { it.name }, query))
+            addEncodedQueryParameter(intermediateSearchKey, buildQueryString(selectedGenres.map { it.name }, query, searchMangaLang))
             addPageUri(page)
         }
         return GET(url.build(), headers)
@@ -354,6 +364,7 @@ abstract class GalleryAdults(
         val categoryFilters = filters.firstInstanceOrNull<CategoryFilters>()
         // Advanced search
         val advancedSearchFilters = filters.filterIsInstance<AdvancedTextFilter>()
+        val searchMangaLang = filters.searchMangaLang()
 
         val url = "$baseUrl/$advancedSearchUri/".toHttpUrl().newBuilder().apply {
             getSortOrderURIs().forEachIndexed { index, pair ->
@@ -366,8 +377,8 @@ abstract class GalleryAdults(
                 addQueryParameter(
                     pair.second,
                     toBinary(
-                        mangaLang == pair.first ||
-                            mangaLang == LANGUAGE_MULTI,
+                        searchMangaLang == pair.first ||
+                            searchMangaLang == LANGUAGE_MULTI,
                     ),
                 )
             }
@@ -412,7 +423,7 @@ abstract class GalleryAdults(
      * - use comma(, ) for separate terms, as AND condition.
      * Plus(+) after comma(, ) doesn't have any effect.
      */
-    protected open fun buildQueryString(tags: List<String>, query: String): String = (tags + query).filter(String::isNotBlank)
+    protected open fun buildQueryString(tags: List<String>, query: String, language: String = mangaLang): String = (tags + query).filter(String::isNotBlank)
         .joinToString(",") {
             // any space except after a comma (we're going to replace spaces only between words)
             it.trim()
@@ -495,7 +506,8 @@ abstract class GalleryAdults(
         )
     }
         .let { unfiltered ->
-            val results = unfiltered.filter { mangaLang.isBlank() || it.lang == mangaLang }
+            val browseMangaLang = defaultBrowseMangaLang()
+            val results = unfiltered.filter { browseMangaLang.isBlank() || it.lang == browseMangaLang }
             // return at least 1 title if all mangas in current page is of other languages
             if (results.isEmpty() && hasNextPage) {
                 unfiltered.firstOrNull()?.let(::listOf) ?: emptyList()
@@ -858,6 +870,9 @@ abstract class GalleryAdults(
         }
 
         filters.add(SortOrderFilter(getSortOrderURIs()))
+        if (mangaLang == LANGUAGE_MULTI) {
+            filters.add(ChineseOnlyFilter())
+        }
 
         if (genres.isEmpty()) {
             filters.add(Filter.Header("点击重置可尝试重新加载标签"))
