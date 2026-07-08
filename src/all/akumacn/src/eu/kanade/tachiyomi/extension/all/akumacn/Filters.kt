@@ -7,6 +7,7 @@ fun getFilters(): FilterList = FilterList(
     Filter.Header("多个标签用英文逗号 (,) 分隔"),
     Filter.Header("前面加减号 (-) 表示排除"),
     ChineseOnlyFilter(),
+    AnimatedFilter(),
     TextFilter("女性标签", "female"),
     TextFilter("男性标签", "male"),
     TextFilter("其他标签", "other"),
@@ -22,6 +23,17 @@ fun getFilters(): FilterList = FilterList(
 
 internal class TextFilter(name: String, val tag: String) : Filter.Text(name)
 internal class ChineseOnlyFilter : Filter.CheckBox("只显示中文（脚本规则）", false)
+internal class AnimatedFilter :
+    Filter.Select<String>(
+        "动图/GIF",
+        arrayOf("不限", "只显示动图", "排除动图/GIF"),
+    ) {
+    fun queryTokens(): List<String> = when (state) {
+        1 -> listOf("tag:\"animated\"")
+        2 -> listOf("-tag:\"animated\"", "-tag:\"gif\"")
+        else -> emptyList()
+    }
+}
 internal class OptionFilter(val value: List<Pair<String, String>> = options) : Filter.Select<String>("搜索范围", options.map { it.first }.toTypedArray()) {
     fun getValue() = options[state].second
 }

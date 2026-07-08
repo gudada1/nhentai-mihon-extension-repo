@@ -29,6 +29,7 @@ class HentaiFox(
     lang = lang,
 ) {
     override val supportsLatest = mangaLang.isNotBlank()
+    override val supportAnimatedFilter: Boolean = true
 
     private val languages: List<Pair<String, String>> = listOf(
         Pair(LANGUAGE_ENGLISH, "1"),
@@ -102,7 +103,9 @@ class HentaiFox(
     override fun buildQueryString(tags: List<String>, query: String, language: String): String {
         val regexSpecialCharacters = Regex("""[^a-zA-Z0-9"]+(?=[a-zA-Z0-9"])""")
         return (tags + query + language).filterNot { it.isBlank() }.joinToString("+") {
-            it.trim().replace(regexSpecialCharacters, "+")
+            val term = it.trim()
+            val prefix = if (term.startsWith("-")) "-" else ""
+            prefix + term.removePrefix("-").replace(regexSpecialCharacters, "+")
         }
     }
 

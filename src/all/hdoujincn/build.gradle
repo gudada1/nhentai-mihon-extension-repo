@@ -1,7 +1,7 @@
 ext {
     extName = 'HDoujin CN'
     extClass = '.HDoujinFactory'
-    extVersionCode = 7
+    extVersionCode = 8
     isNsfw = true
 }
 

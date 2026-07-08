@@ -227,6 +227,10 @@ class Akuma(
                     if (filter.state > 0) finalQuery.add("opt:${filter.getValue()}")
                 }
 
+                is AnimatedFilter -> {
+                    finalQuery.addAll(filter.queryTokens())
+                }
+
                 is CategoryFilter -> {
                     filter.state.forEach {
                         when {

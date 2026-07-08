@@ -19,6 +19,7 @@ class AsmHentai(
 ) {
     override val supportsLatest = mangaLang.isNotBlank()
     override val supportSpeechless: Boolean = true
+    override val supportAnimatedFilter: Boolean = true
 
     override fun Element.mangaLang() = select("a:has(.flag)").attr("href")
         .removeSuffix("/").substringAfterLast("/")

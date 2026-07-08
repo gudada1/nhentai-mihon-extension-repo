@@ -321,6 +321,10 @@ open class NHentai(
                     append(" ")
                 }
         }
+        filters.filterIsInstance<AnimatedFilter>().firstOrNull()?.queryTokens()?.forEach { token ->
+            append(token)
+            append(" ")
+        }
     }
 
     private fun resolveSearchLanguageQuery(filters: FilterList, query: String): String {
@@ -446,6 +450,7 @@ open class NHentai(
         UploadedFilter(),
         Filter.Header("按页数筛选，示例：>20"),
         PagesFilter(),
+        AnimatedFilter(),
 
         Filter.Separator(),
         SearchLanguageFilter(),
@@ -474,6 +479,17 @@ open class NHentai(
     class UploadedFilter : AdvSearchEntryFilter("上传时间", "uploaded")
     class PagesFilter : AdvSearchEntryFilter("页数", "pages")
     open class AdvSearchEntryFilter(name: String, val queryName: String) : Filter.Text(name)
+    protected class AnimatedFilter :
+        Filter.Select<String>(
+            "动图/GIF",
+            ANIMATED_OPTIONS.map { it.first }.toTypedArray(),
+        ) {
+        fun queryTokens(): List<String> = when (ANIMATED_OPTIONS.getOrNull(state)?.second) {
+            ANIMATED_INCLUDE -> listOf("tag:\"animated\"")
+            ANIMATED_EXCLUDE -> listOf("-tag:\"animated\"", "-tag:\"gif\"")
+            else -> emptyList()
+        }
+    }
 
     class StartPageFilter(default: String = "") : Filter.Text("起始页（手动输入）", default)
 
@@ -563,6 +579,14 @@ open class NHentai(
             Pair("第 600 页", "600"),
             Pair("第 650 页", "650"),
             Pair("第 700 页", "700"),
+        )
+
+        private const val ANIMATED_INCLUDE = "include"
+        private const val ANIMATED_EXCLUDE = "exclude"
+        private val ANIMATED_OPTIONS = arrayOf(
+            Pair("不限", ""),
+            Pair("只显示动图", ANIMATED_INCLUDE),
+            Pair("排除动图/GIF", ANIMATED_EXCLUDE),
         )
 
         private const val SORT_PREF = "搜索默认排序"
@@ -772,6 +796,7 @@ class NHentaiFavorites(
         UploadedFilter(),
         Filter.Header("按页数筛选，示例：>20"),
         PagesFilter(),
+        AnimatedFilter(),
         Filter.Separator(),
         StartPagePresetFilter(0),
         StartPageFilter(),

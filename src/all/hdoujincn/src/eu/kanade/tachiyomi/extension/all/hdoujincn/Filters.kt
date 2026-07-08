@@ -6,6 +6,7 @@ fun getFilters(): FilterList = FilterList(
     SelectFilter("排序", getSortsList),
     CategoryFilter("分类"),
     ChineseOnlyFilter(),
+    AnimatedFilter(),
     Filter.Separator(),
     TagType("包含标签匹配方式", "i"),
     TagType("排除标签匹配方式", "e"),
@@ -32,6 +33,17 @@ fun getFilters(): FilterList = FilterList(
 
 class CheckBoxFilter(name: String, val value: Int, state: Boolean) : Filter.CheckBox(name, state)
 class ChineseOnlyFilter : Filter.CheckBox("只显示中文（脚本规则）", false)
+class AnimatedFilter :
+    Filter.Select<String>(
+        "动图/GIF",
+        arrayOf("不限", "只显示动图", "排除动图/GIF"),
+    ) {
+    fun queryTokens(): List<String> = when (state) {
+        1 -> listOf("tag:\"animated\"")
+        2 -> listOf("-tag:\"animated\"", "-tag:\"gif\"")
+        else -> emptyList()
+    }
+}
 
 internal class CategoryFilter(name: String) :
     Filter.Group<CheckBoxFilter>(

@@ -13,6 +13,24 @@ class SortOrderFilter(sortOrderURIs: List<Pair<String, String>>) : Filter.Select
 
 class ChineseOnlyFilter(state: Boolean = false) : Filter.CheckBox("只显示中文（脚本规则）", state)
 
+class AnimatedFilter :
+    Filter.Select<String>(
+        "动图/GIF",
+        arrayOf("不限", "只显示动图", "排除动图/GIF"),
+    ) {
+    fun queryTerms(): List<String> = when (state) {
+        1 -> listOf("animated")
+        2 -> listOf("-animated", "-gif")
+        else -> emptyList()
+    }
+
+    fun advancedTerms(): List<String> = when (state) {
+        1 -> listOf("%2Btag:\"animated\"")
+        2 -> listOf("-tag:\"animated\"", "-tag:\"gif\"")
+        else -> emptyList()
+    }
+}
+
 class FavoriteFilter : Filter.CheckBox("只显示收藏（需要 WebView 登录）", false)
 
 class RandomEntryFilter : Filter.CheckBox("随机漫画", false)

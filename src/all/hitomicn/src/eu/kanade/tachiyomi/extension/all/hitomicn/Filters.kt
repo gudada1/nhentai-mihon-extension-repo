@@ -6,6 +6,7 @@ import eu.kanade.tachiyomi.source.model.FilterList
 fun getFilters(): FilterList = FilterList(
     SelectFilter("排序", getSortsList),
     TypeFilter("类型"),
+    AnimatedFilter(),
     ChineseOnlyFilter(),
     Filter.Separator(),
     Filter.Header("多个标签用英文逗号 (,) 分隔"),
@@ -40,6 +41,17 @@ internal class TypeFilter(name: String) :
         ).map { CheckBoxFilter(it.first, it.second, true) },
     )
 internal open class CheckBoxFilter(name: String, val value: String, state: Boolean) : Filter.CheckBox(name, state)
+internal class AnimatedFilter :
+    Filter.Select<String>(
+        "动图/动画",
+        arrayOf("不限", "只显示动画", "排除动画"),
+    ) {
+    fun queryTokens(): List<String> = when (state) {
+        1 -> listOf("type:anime")
+        2 -> listOf("-type:anime")
+        else -> emptyList()
+    }
+}
 
 private val getSortsList: List<Triple<String, String?, String>> = listOf(
     Triple("添加日期", null, "index"),

@@ -248,8 +248,13 @@ abstract class GalleryAdults(
     protected open val useIntermediateSearch: Boolean = false
     protected open val supportAdvancedSearch: Boolean = false
     protected open val supportSpeechless: Boolean = false
+    protected open val supportAnimatedFilter: Boolean = false
     protected open val useBasicSearch: Boolean
         get() = !useIntermediateSearch
+
+    private fun FilterList.animatedQueryTerms(): List<String> = if (supportAnimatedFilter) firstInstanceOrNull<AnimatedFilter>()?.queryTerms().orEmpty() else emptyList()
+
+    private fun FilterList.animatedAdvancedTerms(): List<String> = if (supportAnimatedFilter) firstInstanceOrNull<AnimatedFilter>()?.advancedTerms().orEmpty() else emptyList()
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         // Basic search
@@ -257,6 +262,7 @@ abstract class GalleryAdults(
         val genresFilter = filters.firstInstanceOrNull<GenresFilter>()
         val selectedGenres = genresFilter?.state?.filter { it.state } ?: emptyList()
         val favoriteFilter = filters.firstInstanceOrNull<FavoriteFilter>()
+        val hasAnimatedFilter = filters.animatedQueryTerms().isNotEmpty()
 
         // Speechless
         val speechlessFilter = filters.firstInstanceOrNull<SpeechlessFilter>()
@@ -271,16 +277,16 @@ abstract class GalleryAdults(
             supportSpeechless && speechlessFilter?.state == true ->
                 speechlessFilterSearchRequest(page, query, filters)
 
-            supportAdvancedSearch && advancedSearchFilters.any { it.state.isNotBlank() } ->
+            supportAdvancedSearch && (advancedSearchFilters.any { it.state.isNotBlank() } || hasAnimatedFilter) ->
                 advancedSearchRequest(page, query, filters)
 
-            selectedGenres.size == 1 && query.isBlank() ->
+            selectedGenres.size == 1 && query.isBlank() && !hasAnimatedFilter ->
                 tagBrowsingSearchRequest(page, query, filters)
 
             useIntermediateSearch ->
                 intermediateSearchRequest(page, query, filters)
 
-            useBasicSearch && (selectedGenres.size > 1 || query.isNotBlank()) ->
+            useBasicSearch && (selectedGenres.size > 1 || query.isNotBlank() || hasAnimatedFilter) ->
                 basicSearchRequest(page, query, filters)
 
             sortOrderFilter?.state == 1 ->
@@ -301,10 +307,11 @@ abstract class GalleryAdults(
         val sortOrderFilter = filters.firstInstanceOrNull<SortOrderFilter>()
         val genresFilter = filters.firstInstanceOrNull<GenresFilter>()
         val selectedGenres = genresFilter?.state?.filter { it.state } ?: emptyList()
+        val queryTerms = selectedGenres.map { it.name } + filters.animatedQueryTerms()
 
         val url = baseUrl.toHttpUrl().newBuilder().apply {
             addPathSegments("search/")
-            addEncodedQueryParameter(basicSearchKey, buildQueryString(selectedGenres.map { it.name }, query, filters.searchMangaLang()))
+            addEncodedQueryParameter(basicSearchKey, buildQueryString(queryTerms, query, filters.searchMangaLang()))
             if (sortOrderFilter?.state == 0) addQueryParameter("sort", "popular")
             addPageUri(page)
         }
@@ -326,6 +333,7 @@ abstract class GalleryAdults(
         // Intermediate search
         val categoryFilters = filters.firstInstanceOrNull<CategoryFilters>()
         val searchMangaLang = filters.searchMangaLang()
+        val queryTerms = selectedGenres.map { it.name } + filters.animatedQueryTerms()
 
         // Only for query string or multiple tags
         val url = "$baseUrl/search/".toHttpUrl().newBuilder().apply {
@@ -341,7 +349,7 @@ abstract class GalleryAdults(
                     toBinary(searchMangaLang == pair.first || searchMangaLang == LANGUAGE_MULTI),
                 )
             }
-            addEncodedQueryParameter(intermediateSearchKey, buildQueryString(selectedGenres.map { it.name }, query, searchMangaLang))
+            addEncodedQueryParameter(intermediateSearchKey, buildQueryString(queryTerms, query, searchMangaLang))
             addPageUri(page)
         }
         return GET(url.build(), headers)
@@ -387,6 +395,7 @@ abstract class GalleryAdults(
             // +tag must be encoded into %2Btag while the rest are not needed to encode
             val keys = emptyList<String>().toMutableList()
             keys.addAll(selectedGenres.map { "%2Btag:\"${it.name}\"" })
+            keys.addAll(filters.animatedAdvancedTerms())
             advancedSearchFilters.forEach { filter ->
                 val key = when (filter) {
                     is TagsFilter -> "tag"
@@ -872,6 +881,9 @@ abstract class GalleryAdults(
         filters.add(SortOrderFilter(getSortOrderURIs()))
         if (mangaLang == LANGUAGE_MULTI) {
             filters.add(ChineseOnlyFilter())
+        }
+        if (supportAnimatedFilter) {
+            filters.add(AnimatedFilter())
         }
 
         if (genres.isEmpty()) {

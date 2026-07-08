@@ -190,6 +190,10 @@ class Hitomi(
                     }
                 }
 
+                is AnimatedFilter -> {
+                    terms += it.queryTokens()
+                }
+
                 else -> {}
             }
         }

@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.extension.all.hdoujincn
 
+import AnimatedFilter
 import CategoryFilter
 import ChineseOnlyFilter
 import SelectFilter
@@ -249,6 +250,10 @@ class HDoujin(
                                 },
                             )
                         }
+                    }
+
+                    is AnimatedFilter -> {
+                        terms.addAll(filter.queryTokens())
                     }
 
                     else -> {}
