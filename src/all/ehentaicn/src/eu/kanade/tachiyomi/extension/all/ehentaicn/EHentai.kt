@@ -59,6 +59,7 @@ abstract class EHentai(
     override val supportsLatest = true
 
     private var lastMangaId = ""
+    private var galleryListLanguageFilter = ""
 
     // true if lang is a "natural human language"
     private fun isLangNatural(): Boolean = lang !in listOf("none", "other")
@@ -67,7 +68,11 @@ abstract class EHentai(
         val doc = response.asJsoup()
         val mangaElements = doc.select("table.itg td.glname")
             .let { elements ->
-                if (isLangNatural() && getEnforceLanguagePref()) {
+                if (galleryListLanguageFilter.isNotBlank()) {
+                    elements.filter { element ->
+                        element.select("div[title^=language]").firstOrNull()?.text() == galleryListLanguageFilter
+                    }
+                } else if (isLangNatural() && getEnforceLanguagePref()) {
                     elements.filter { element ->
                         // only accept elements with a language tag matching ehLang or without a language tag
                         // could make this stricter and not accept elements without a language tag, possibly add a sharedpreference for it
@@ -100,7 +105,7 @@ abstract class EHentai(
         }
 
         // Add to page if required
-        val hasNextPage = doc.select("a#unext[href]").hasText()
+        val hasNextPage = doc.select("a#unext[href], table.ptt a[href*=p=]").hasText()
 
         return MangasPage(parsedMangas, hasNextPage)
     }
@@ -155,6 +160,7 @@ abstract class EHentai(
     private fun languageTag(enforceLanguageFilter: Boolean = false): String = if (isLangNatural() && (enforceLanguageFilter || getEnforceLanguagePref())) "language:$ehLang" else ""
 
     override fun popularMangaRequest(page: Int): Request {
+        galleryListLanguageFilter = ""
         rememberDisplayPage(page)
         return if (isLangNatural()) {
             exGet("$baseUrl/?f_search=${languageTag()}&f_srdd=5&f_sr=on", page)
@@ -177,6 +183,9 @@ abstract class EHentai(
             enforceLanguageFilter -> languageTag(enforceLanguageFilter = true)
             else -> ""
         }
+        rankingMangaRequest(page, filterList, selectedLanguage)?.let { return it }
+
+        galleryListLanguageFilter = ""
         val uri = Uri.parse("$baseUrl$QUERY_PREFIX").buildUpon()
         var modifiedQuery = when {
             languageQuery.isBlank() -> query
@@ -232,7 +241,34 @@ abstract class EHentai(
         return exGet(uri.toString(), page)
     }
 
+    private fun rankingMangaRequest(page: Int, filters: FilterList, selectedLanguage: String): Request? {
+        val rankingType = filters.filterIsInstance<RankingTypeFilter>()
+            .firstOrNull()
+            ?.selectedType()
+            .orEmpty()
+        if (rankingType.isBlank()) return null
+
+        galleryListLanguageFilter = selectedLanguage
+
+        val period = filters.filterIsInstance<RankingPeriodFilter>()
+            .firstOrNull()
+            ?.selectedPeriod()
+            .orEmpty()
+        val toplistCode = RANKING_TOPLIST_CODES[period] ?: RANKING_TOPLIST_CODES.getValue(RANKING_PERIOD_ALL)
+        val url = "$baseUrl/toplist.php".toHttpUrl().newBuilder()
+            .addQueryParameter("tl", toplistCode)
+            .apply {
+                if (page > 1) {
+                    addQueryParameter("p", (page - 1).toString())
+                }
+            }
+            .build()
+
+        return GET(url.toString(), headers)
+    }
+
     override fun latestUpdatesRequest(page: Int): Request {
+        galleryListLanguageFilter = ""
         rememberDisplayPage(page)
         return exGet(baseUrl, page)
     }
@@ -530,6 +566,9 @@ abstract class EHentai(
     // Filters
     override fun getFilterList() = FilterList(
         SearchLanguageFilter(),
+        RankingTypeFilter(),
+        RankingPeriodFilter(),
+        Filter.Header("排行榜使用 E-Hentai 官方 Toplist；启用后普通关键词和标签筛选会被忽略"),
         EnforceLanguageFilter(getEnforceLanguagePref()),
         Favorites(),
         Watched(),
@@ -585,6 +624,22 @@ abstract class EHentai(
             SEARCH_LANGUAGE_OPTIONS.map { it.first }.toTypedArray(),
         ) {
         fun selectedLanguage() = SEARCH_LANGUAGE_OPTIONS[state].second
+    }
+
+    private class RankingTypeFilter :
+        Select<String>(
+            "排行类型",
+            RANKING_TYPE_OPTIONS.map { it.first }.toTypedArray(),
+        ) {
+        fun selectedType() = RANKING_TYPE_OPTIONS[state].second
+    }
+
+    private class RankingPeriodFilter :
+        Select<String>(
+            "排行时间",
+            RANKING_PERIOD_OPTIONS.map { it.first }.toTypedArray(),
+        ) {
+        fun selectedPeriod() = RANKING_PERIOD_OPTIONS[state].second
     }
 
     class Watched :
@@ -748,6 +803,33 @@ abstract class EHentai(
             "俄文" to "russian",
             "其他" to "other",
             "无语言" to "n/a",
+        )
+
+        private const val RANKING_TYPE_NONE = ""
+        private const val RANKING_TYPE_VIEWS = "views"
+        private const val RANKING_TYPE_FAVORITES = "favorites"
+        private val RANKING_TYPE_OPTIONS = arrayOf(
+            "不使用排行榜" to RANKING_TYPE_NONE,
+            "浏览量排行" to RANKING_TYPE_VIEWS,
+            "最多收藏排行（近似）" to RANKING_TYPE_FAVORITES,
+        )
+
+        private const val RANKING_PERIOD_ALL = "all"
+        private const val RANKING_PERIOD_MONTH = "month"
+        private const val RANKING_PERIOD_WEEK = "week"
+        private const val RANKING_PERIOD_DAY = "day"
+        private val RANKING_PERIOD_OPTIONS = arrayOf(
+            "全部时间" to RANKING_PERIOD_ALL,
+            "当月" to RANKING_PERIOD_MONTH,
+            "当周（站点无周榜，使用当月）" to RANKING_PERIOD_WEEK,
+            "当日（站点使用昨日榜）" to RANKING_PERIOD_DAY,
+        )
+
+        private val RANKING_TOPLIST_CODES = mapOf(
+            RANKING_PERIOD_ALL to "11",
+            RANKING_PERIOD_MONTH to "13",
+            RANKING_PERIOD_WEEK to "13",
+            RANKING_PERIOD_DAY to "15",
         )
 
         private const val ORIGINAL_IMAGE_PREF_KEY = "ORIGINAL_IMAGE"
