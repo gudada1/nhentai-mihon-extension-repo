@@ -14,6 +14,39 @@ private val RATING_PARAMS = arrayOf(null, "all", "r18")
 private val RATING_PREDICATES: Array<((PixivIllust) -> Boolean)?> =
     arrayOf(null, { it.x_restrict == "0" }, { it.x_restrict == "1" })
 
+private val BOOKMARK_VALUES = arrayOf(
+    "不使用热度门槛",
+    "50 users入り",
+    "100 users入り",
+    "300 users入り",
+    "500 users入り",
+    "1000 users入り",
+    "5000 users入り",
+    "10000 users入り",
+    "20000 users入り",
+    "30000 users入り",
+    "50000 users入り",
+)
+private val BOOKMARK_PARAMS = arrayOf(
+    null,
+    "50users入り",
+    "100users入り",
+    "300users入り",
+    "500users入り",
+    "1000users入り",
+    "5000users入り",
+    "10000users入り",
+    "20000users入り",
+    "30000users入り",
+    "50000users入り",
+)
+
+private val RANKING_TYPE_VALUES = arrayOf("不使用排行榜", "漫画排行", "插画排行")
+private val RANKING_TYPE_PARAMS = arrayOf(null, "manga", "illust")
+
+private val RANKING_PERIOD_VALUES = arrayOf("当日", "当周", "当月")
+private val RANKING_PERIOD_PARAMS = arrayOf("daily", "weekly", "monthly")
+
 internal class PixivFilters : MutableList<Filter<*>> by mutableListOf() {
     init {
         add(Filter.Header("搜索支持 Pixiv 链接、aid:123、user:123、sid:123"))
@@ -31,6 +64,14 @@ internal class PixivFilters : MutableList<Filter<*>> by mutableListOf() {
 
     init {
         add(Filter.Header("使用用户筛选时，下面这些条件会被忽略"))
+    }
+
+    private val bookmarkFilter = object : Filter.Select<String>("热度门槛（users入り）", BOOKMARK_VALUES, 0) {}.also(::add)
+    private val rankingTypeFilter = object : Filter.Select<String>("排行类型", RANKING_TYPE_VALUES, 0) {}.also(::add)
+    private val rankingPeriodFilter = object : Filter.Select<String>("排行时间", RANKING_PERIOD_VALUES, 0) {}.also(::add)
+
+    init {
+        add(Filter.Header("热度门槛会追加 Pixiv 的 users入り 标签；启用排行榜时会忽略关键词、标签、日期和热度门槛"))
     }
 
     private val orderFilter = object : Filter.Sort("排序", arrayOf("投稿日期")) {}.also(::add)
@@ -64,6 +105,12 @@ internal class PixivFilters : MutableList<Filter<*>> by mutableListOf() {
 
     val rating: String? get() = RATING_PARAMS[ratingFilter.state]
     fun makeRatingPredicate() = RATING_PREDICATES[ratingFilter.state]
+
+    private val bookmarkTag: String? get() = BOOKMARK_PARAMS[bookmarkFilter.state]
+    fun withBookmarkTag(word: String): String = listOfNotNull(word.ifBlank { null }, bookmarkTag).joinToString(" ")
+
+    val rankingType: String? get() = RANKING_TYPE_PARAMS[rankingTypeFilter.state]
+    val rankingPeriod: String get() = RANKING_PERIOD_PARAMS[rankingPeriodFilter.state]
 
     val order: String? get() = orderFilter.state?.ascending?.let { "date" }
 

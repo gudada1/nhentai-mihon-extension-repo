@@ -72,21 +72,7 @@ class Pixiv(override val lang: String) :
 
     override fun fetchPopularManga(page: Int): Observable<MangasPage> {
         if (page == 1) {
-            popularMangaIterator = sequence {
-                val rankingCall = ApiCall("/touch/ajax/ranking/illust?mode=daily&type=manga")
-
-                for (p in countUp(start = 1)) {
-                    rankingCall.url.setEncodedQueryParameter("page", p.toString())
-
-                    val entries = rankingCall.executeApi<PixivRankings>().getOrThrow().ranking!!
-                    if (entries.isEmpty()) break
-
-                    val detailsCall = ApiCall("/touch/ajax/illust/details/many")
-                    entries.forEach { detailsCall.url.addEncodedQueryParameter("illust_ids[]", it.illustId!!) }
-
-                    detailsCall.executeApi<PixivIllustsDetails>().getOrThrow().illust_details!!.forEach { yield(it) }
-                }
-            }
+            popularMangaIterator = makeRankingIllustSequence(period = "daily", type = "manga", rating = null)
                 .toSManga()
                 .iterator()
 
@@ -156,6 +142,33 @@ class Pixiv(override val lang: String) :
 
         val filters = filters.list as PixivFilters
 
+        filters.rankingType?.let { rankingType ->
+            val hash = Triple(filters.rankingPeriod, rankingType, filters.rating).hashCode()
+            if (hash != searchHash || page == 1) {
+                searchHash = hash
+                searchIterator = makeRankingIllustSequence(
+                    period = filters.rankingPeriod,
+                    type = rankingType,
+                    rating = filters.rating,
+                ).iterator()
+                searchPredicates = buildList {
+                    filters.makeRatingPredicate()?.let(::add)
+                }
+                searchNextPage = 2
+            } else {
+                require(page == searchNextPage++)
+            }
+
+            val filteredIllusts = if (searchPredicates.isEmpty()) {
+                searchIterator.truncateToList(TARGET_RESULTS)
+            } else {
+                fetchWithAdaptiveWindow(searchIterator, searchPredicates)
+            }
+
+            val mangas = filteredIllusts.toSManga()
+            return Observable.just(MangasPage(mangas, hasNextPage = mangas.isNotEmpty()))
+        }
+
         if (filters.users.isNotBlank()) {
             val hash = filters.users.hashCode()
             if (hash != userSearchHash || page == 1) {
@@ -181,7 +194,7 @@ class Pixiv(override val lang: String) :
 
             if (query.isNotBlank()) {
                 searchSequence = makeIllustSearchSequence(
-                    word = query,
+                    word = filters.withBookmarkTag(query),
                     order = filters.order,
                     mode = filters.rating,
                     sMode = "s_tc",
@@ -196,7 +209,7 @@ class Pixiv(override val lang: String) :
                 }
             } else {
                 searchSequence = makeIllustSearchSequence(
-                    word = filters.tags.ifBlank { "漫画" },
+                    word = filters.withBookmarkTag(filters.tags.ifBlank { "漫画" }),
                     order = filters.order,
                     mode = filters.rating,
                     sMode = filters.searchMode,
@@ -256,6 +269,38 @@ class Pixiv(override val lang: String) :
 
         val allIllusts = sampleIllusts + additionalIllusts
         return allIllusts.filter { illust -> predicates.all { p -> p(illust) } }
+    }
+
+    private fun makeRankingIllustSequence(
+        period: String,
+        type: String,
+        rating: String?,
+    ) = sequence<PixivIllust> {
+        val rankingCall = ApiCall("/touch/ajax/ranking/illust")
+        val rankingMode = if (rating == "r18") "${period}_r18" else period
+
+        rankingCall.url.addEncodedQueryParameter("mode", rankingMode)
+        rankingCall.url.addEncodedQueryParameter("type", type)
+
+        for (p in countUp(start = 1)) {
+            rankingCall.url.setEncodedQueryParameter("page", p.toString())
+
+            val entries = rankingCall.executeApi<PixivRankings>().getOrThrow().ranking.orEmpty()
+            if (entries.isEmpty()) break
+
+            val ids = entries.mapNotNull { it.illustId }
+            if (ids.isEmpty()) continue
+
+            val detailsCall = ApiCall("/touch/ajax/illust/details/many")
+            ids.forEach { detailsCall.url.addEncodedQueryParameter("illust_ids[]", it) }
+
+            for (illust in detailsCall.executeApi<PixivIllustsDetails>().getOrThrow().illust_details.orEmpty()) {
+                if (illust.is_ad_container == 1) continue
+                if (illust.type == "2") continue
+
+                yield(illust)
+            }
+        }
     }
 
     private fun makeIllustSearchSequence(
