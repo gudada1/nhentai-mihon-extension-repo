@@ -31,7 +31,7 @@ fun getFilters(): FilterList = FilterList(
 )
 
 class CheckBoxFilter(name: String, val value: Int, state: Boolean) : Filter.CheckBox(name, state)
-class ChineseOnlyFilter : Filter.CheckBox("只显示中文（脚本规则）", true)
+class ChineseOnlyFilter : Filter.CheckBox("只显示中文（脚本规则）", false)
 
 internal class CategoryFilter(name: String) :
     Filter.Group<CheckBoxFilter>(

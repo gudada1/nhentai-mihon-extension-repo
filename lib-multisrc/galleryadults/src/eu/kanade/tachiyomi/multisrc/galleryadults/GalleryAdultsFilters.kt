@@ -11,7 +11,7 @@ class GenresFilter(genres: Map<String, String>) :
 
 class SortOrderFilter(sortOrderURIs: List<Pair<String, String>>) : Filter.Select<String>("排序", sortOrderURIs.map { it.first }.toTypedArray())
 
-class ChineseOnlyFilter(state: Boolean = true) : Filter.CheckBox("只显示中文（脚本规则）", state)
+class ChineseOnlyFilter(state: Boolean = false) : Filter.CheckBox("只显示中文（脚本规则）", state)
 
 class FavoriteFilter : Filter.CheckBox("只显示收藏（需要 WebView 登录）", false)
 

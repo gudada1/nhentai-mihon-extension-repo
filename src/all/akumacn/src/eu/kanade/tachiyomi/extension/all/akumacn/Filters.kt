@@ -21,7 +21,7 @@ fun getFilters(): FilterList = FilterList(
 )
 
 internal class TextFilter(name: String, val tag: String) : Filter.Text(name)
-internal class ChineseOnlyFilter : Filter.CheckBox("只显示中文（脚本规则）", true)
+internal class ChineseOnlyFilter : Filter.CheckBox("只显示中文（脚本规则）", false)
 internal class OptionFilter(val value: List<Pair<String, String>> = options) : Filter.Select<String>("搜索范围", options.map { it.first }.toTypedArray()) {
     fun getValue() = options[state].second
 }

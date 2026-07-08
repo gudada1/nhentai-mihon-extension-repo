@@ -94,7 +94,7 @@ abstract class GalleryAdults(
     // Default to [mangaLang] won't filter anything
     protected open fun Element.mangaLang() = mangaLang
 
-    protected fun defaultBrowseMangaLang(): String = if (mangaLang == LANGUAGE_MULTI) LANGUAGE_CHINESE else mangaLang
+    protected fun defaultBrowseMangaLang(): String = mangaLang
 
     private fun FilterList.searchMangaLang(): String {
         val chineseOnly = firstInstanceOrNull<ChineseOnlyFilter>()?.state == true

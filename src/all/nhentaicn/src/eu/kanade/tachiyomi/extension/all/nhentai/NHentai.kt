@@ -481,7 +481,7 @@ open class NHentai(
 
     private class FavoriteFilter : Filter.CheckBox("只显示我的收藏", false)
 
-    private class SearchLanguageFilter : UriPartFilter("搜索语言", SEARCH_LANGUAGE_OPTIONS, 1)
+    private class SearchLanguageFilter : UriPartFilter("搜索语言", SEARCH_LANGUAGE_OPTIONS, 0)
 
     private class SortFilter(default: Int) : UriPartFilter("排序", SORT_OPTIONS, default)
 

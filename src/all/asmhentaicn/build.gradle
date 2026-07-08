@@ -3,7 +3,7 @@ ext {
     extClass = '.ASMHFactory'
     themePkg = 'galleryadults'
     baseUrl = 'https://asmhentai.com'
-    overrideVersionCode = 5
+    overrideVersionCode = 6
     isNsfw = true
 }
 
