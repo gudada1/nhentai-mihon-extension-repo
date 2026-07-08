@@ -152,7 +152,7 @@ abstract class EHentai(
         if (it.text() == ">") it.attr("href") else null
     }
 
-    private fun languageTag(enforceLanguageFilter: Boolean = false): String = if (enforceLanguageFilter || getEnforceLanguagePref()) "language:$ehLang" else ""
+    private fun languageTag(enforceLanguageFilter: Boolean = false): String = if (isLangNatural() && (enforceLanguageFilter || getEnforceLanguagePref())) "language:$ehLang" else ""
 
     override fun popularMangaRequest(page: Int): Request {
         rememberDisplayPage(page)
@@ -167,12 +167,21 @@ abstract class EHentai(
         val filterList = if (filters.isEmpty()) getFilterList() else filters
         rememberDisplayPage(page, filterList)
 
+        val selectedLanguage = filterList.filterIsInstance<SearchLanguageFilter>()
+            .firstOrNull()
+            ?.selectedLanguage()
+            .orEmpty()
         val enforceLanguageFilter = filterList.find { it is EnforceLanguageFilter }?.state == true
+        val languageQuery = when {
+            selectedLanguage.isNotBlank() -> "language:$selectedLanguage"
+            enforceLanguageFilter -> languageTag(enforceLanguageFilter = true)
+            else -> ""
+        }
         val uri = Uri.parse("$baseUrl$QUERY_PREFIX").buildUpon()
         var modifiedQuery = when {
-            !isLangNatural() -> query
-            query.isBlank() -> languageTag(enforceLanguageFilter)
-            else -> languageTag(enforceLanguageFilter).let { if (it.isNotEmpty()) "$query,$it" else query }
+            languageQuery.isBlank() -> query
+            query.isBlank() -> languageQuery
+            else -> "$query,$languageQuery"
         }
         filterList.filterIsInstance<TextFilter>().forEach { filter ->
             if (filter.state.isNotEmpty()) {
@@ -457,11 +466,6 @@ abstract class EHentai(
         // Do not show popular right now pane as we can't parse it
         settings += "prn_n"
 
-        // Exclude every other language except the one we have selected
-        settings += "xl_" + languageMappings.filter { it.first != ehLang }
-            .flatMap { it.second }
-            .joinToString("x")
-
         cookies["uconfig"] = buildSettings(settings)
 
         // Bypass "Offensive For Everyone" content warning
@@ -525,6 +529,7 @@ abstract class EHentai(
 
     // Filters
     override fun getFilterList() = FilterList(
+        SearchLanguageFilter(),
         EnforceLanguageFilter(getEnforceLanguagePref()),
         Favorites(),
         Watched(),
@@ -572,6 +577,14 @@ abstract class EHentai(
             )
             else -> emptyList()
         }
+    }
+
+    private class SearchLanguageFilter :
+        Select<String>(
+            "搜索语言",
+            SEARCH_LANGUAGE_OPTIONS.map { it.first }.toTypedArray(),
+        ) {
+        fun selectedLanguage() = SEARCH_LANGUAGE_OPTIONS[state].second
     }
 
     class Watched :
@@ -685,7 +698,7 @@ abstract class EHentai(
             ),
         )
 
-    private class EnforceLanguageFilter(default: Boolean) : CheckBox("强制匹配语言", default)
+    private class EnforceLanguageFilter(default: Boolean) : CheckBox("强制匹配当前源语言", default)
 
     // map languages to their internal ids
     private val languageMappings = listOf(
@@ -719,9 +732,23 @@ abstract class EHentai(
         private const val LAST_DISPLAY_PAGE_PREF_KEY = "LAST_DISPLAY_PAGE"
 
         private const val ENFORCE_LANGUAGE_PREF_KEY = "ENFORCE_LANGUAGE"
-        private const val ENFORCE_LANGUAGE_PREF_TITLE = "强制匹配语言"
+        private const val ENFORCE_LANGUAGE_PREF_TITLE = "强制匹配当前源语言"
         private const val ENFORCE_LANGUAGE_PREF_SUMMARY = "勾选后浏览时只显示匹配当前语言标签的作品"
         private const val ENFORCE_LANGUAGE_PREF_DEFAULT_VALUE = false
+
+        private val SEARCH_LANGUAGE_OPTIONS = arrayOf(
+            "全部语言" to "",
+            "中文" to "chinese",
+            "英文" to "english",
+            "日文" to "japanese",
+            "韩文" to "korean",
+            "西班牙文" to "spanish",
+            "法文" to "french",
+            "德文" to "german",
+            "俄文" to "russian",
+            "其他" to "other",
+            "无语言" to "n/a",
+        )
 
         private const val ORIGINAL_IMAGE_PREF_KEY = "ORIGINAL_IMAGE"
         private const val ORIGINAL_IMAGE_PREF_TITLE = "使用原图"
