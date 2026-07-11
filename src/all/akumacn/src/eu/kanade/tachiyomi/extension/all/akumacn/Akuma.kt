@@ -270,11 +270,11 @@ class Akuma(
             val characters = document.select(".character~.value").eachText()
             val parodies = document.select(".parody~.value").eachText()
             val males = document.select(".male~.value")
-                .map { CnTagTranslator.tag("${it.text()} ♂") }
+                .map { "${it.text()} ♂" }
             val females = document.select(".female~.value")
-                .map { CnTagTranslator.tag("${it.text()} ♀") }
+                .map { "${it.text()} ♀" }
             val others = document.select(".other~.value")
-                .map { CnTagTranslator.tag("${it.text()} ◊") }
+                .map { "${it.text()} ◊" }
 
             genre = (males + females + others).joinToString()
             description = buildString {

@@ -555,7 +555,7 @@ abstract class GalleryAdults(
             status = SManga.COMPLETED
             mangaTitle("h1")?.let { title = it }
             thumbnail_url = getCover()
-            genre = CnTagTranslator.tags(getInfo("Tags"))
+            genre = getInfo("Tags")
             author = getInfo("Artists")
             description = getDescription(document)
         }

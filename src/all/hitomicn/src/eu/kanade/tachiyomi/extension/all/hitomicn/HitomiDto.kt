@@ -1,6 +1,5 @@
 package eu.kanade.tachiyomi.extension.all.hitomicn
 
-import keiyoushi.lib.cntagtranslator.CnTagTranslator
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -35,11 +34,11 @@ class Tag(
     private val tag: String,
 ) {
     val formatted get() = if (female?.content == "1") {
-        CnTagTranslator.tag(tag.toCamelCase() + " ♀")
+        tag.toCamelCase() + " ♀"
     } else if (male?.content == "1") {
-        CnTagTranslator.tag(tag.toCamelCase() + " ♂")
+        tag.toCamelCase() + " ♂"
     } else {
-        CnTagTranslator.tag(tag.toCamelCase())
+        tag.toCamelCase()
     }
 }
 

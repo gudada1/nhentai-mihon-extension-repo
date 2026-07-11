@@ -58,12 +58,12 @@ class MangaDetail(
                 3 -> parodies.add(tag.name)
                 5 -> characters.add(tag.name)
                 7 -> tag.name.takeIf { it != "anonymous" }?.let { uploaders.add(it) }
-                8 -> males.add(CnTagTranslator.tag(tag.name + " ♂"))
-                9 -> females.add(CnTagTranslator.tag(tag.name + " ♀"))
-                10 -> mixed.add(CnTagTranslator.tag(tag.name))
+                8 -> males.add(tag.name + " ♂")
+                9 -> females.add(tag.name + " ♀")
+                10 -> mixed.add(tag.name)
                 11 -> language.add(CnTagTranslator.language(tag.name))
-                12 -> other.add(CnTagTranslator.tag(tag.name))
-                else -> tags.add(CnTagTranslator.tag(tag.name))
+                12 -> other.add(tag.name)
+                else -> tags.add(tag.name)
             }
         }
 

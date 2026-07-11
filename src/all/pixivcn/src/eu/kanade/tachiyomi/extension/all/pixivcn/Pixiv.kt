@@ -10,7 +10,6 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
-import keiyoushi.lib.cntagtranslator.CnTagTranslator
 import keiyoushi.utils.getPreferencesLazy
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -537,7 +536,7 @@ class Pixiv(override val lang: String) :
                 }
 
                 val tags = illusts.flatMap { it.tags ?: emptyList() }.toSet()
-                if (tags.isNotEmpty()) manga.genre = tags.joinToString { CnTagTranslator.tag(it) }
+                if (tags.isNotEmpty()) manga.genre = tags.joinToString()
 
                 val coverImage = series.coverImage?.let { if (it.isString) it.content else null }
                 (coverImage ?: illusts.firstOrNull()?.url)?.let { manga.thumbnail_url = it }
@@ -553,7 +552,7 @@ class Pixiv(override val lang: String) :
                 }
 
                 illust.comment?.let { manga.description = it }
-                illust.tags?.let { manga.genre = it.joinToString { tag -> CnTagTranslator.tag(tag) } }
+                illust.tags?.let { manga.genre = it.joinToString() }
                 illust.url?.let { manga.thumbnail_url = it }
             }
         }

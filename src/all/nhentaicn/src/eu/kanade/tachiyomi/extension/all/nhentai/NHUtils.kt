@@ -31,6 +31,6 @@ object NHUtils {
 
     fun getTags(data: Hentai): String {
         val tags = data.tags.filter { it.type == "tag" }
-        return tags.map { CnTagTranslator.tag(it.name) }.sorted().joinToString()
+        return tags.map { it.name }.sorted().joinToString()
     }
 }

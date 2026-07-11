@@ -32,7 +32,7 @@ fun ExGalleryMetadata.copyTo(manga: SManga) {
         if (it.isNotEmpty()) manga.author = it.joinToString(transform = Tag::name)
     }
     // Set genre
-    genre?.let { manga.genre = CnTagTranslator.tag(it) }
+    genre?.let { manga.genre = it }
 
     // Try to automatically identify if it is ongoing, we try not to be too lenient here to avoid making mistakes
     // We default to completed
