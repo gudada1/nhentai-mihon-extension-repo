@@ -33,6 +33,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "Nhentai-Mihon-Extension"
 
 include(":core")
+include(":lib:cntagtranslator")
 include(":lib:i18n")
 include(":lib:randomua")
 include(":lib-multisrc:galleryadults")

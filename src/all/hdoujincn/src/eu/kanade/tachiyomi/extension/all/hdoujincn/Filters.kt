@@ -3,9 +3,9 @@ import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
 
 fun getFilters(): FilterList = FilterList(
+    ChineseOnlyFilter(),
     SelectFilter("排序", getSortsList),
     CategoryFilter("分类"),
-    ChineseOnlyFilter(),
     AnimatedFilter(),
     Filter.Separator(),
     TagType("包含标签匹配方式", "i"),

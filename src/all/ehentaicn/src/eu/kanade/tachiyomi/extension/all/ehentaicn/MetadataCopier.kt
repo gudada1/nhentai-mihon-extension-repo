@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.extension.all.ehentaicn
 
 import eu.kanade.tachiyomi.source.model.SManga
+import keiyoushi.lib.cntagtranslator.CnTagTranslator
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -31,7 +32,7 @@ fun ExGalleryMetadata.copyTo(manga: SManga) {
         if (it.isNotEmpty()) manga.author = it.joinToString(transform = Tag::name)
     }
     // Set genre
-    genre?.let { manga.genre = it }
+    genre?.let { manga.genre = CnTagTranslator.tag(it) }
 
     // Try to automatically identify if it is ongoing, we try not to be too lenient here to avoid making mistakes
     // We default to completed
@@ -47,23 +48,22 @@ fun ExGalleryMetadata.copyTo(manga: SManga) {
 
     // Build a nice looking description out of what we know
     val titleDesc = StringBuilder()
-    title?.let { titleDesc += "Title: $it\n" }
-    altTitle?.let { titleDesc += "Alternate Title: $it\n" }
+    title?.let { titleDesc += "标题：$it\n" }
+    altTitle?.let { titleDesc += "其他标题：$it\n" }
 
     val detailsDesc = StringBuilder()
-    uploader?.let { detailsDesc += "Uploader: $it\n" }
-    datePosted?.let { detailsDesc += "Posted: ${EX_DATE_FORMAT.format(Date(it))}\n" }
-    visible?.let { detailsDesc += "Visible: $it\n" }
+    uploader?.let { detailsDesc += "上传者：$it\n" }
+    datePosted?.let { detailsDesc += "发布时间：${EX_DATE_FORMAT.format(Date(it))}\n" }
+    visible?.let { detailsDesc += "可见：${CnTagTranslator.tag(it)}\n" }
     language?.let {
-        detailsDesc += "Language: $it"
-        if (translated == true) detailsDesc += " TR"
+        detailsDesc += "语言：${CnTagTranslator.language(if (translated == true) "$it TR" else it)}"
         detailsDesc += "\n"
     }
-    size?.let { detailsDesc += "File Size: ${humanReadableByteCount(it, true)}\n" }
-    length?.let { detailsDesc += "Length: $it pages\n" }
-    favorites?.let { detailsDesc += "Favorited: $it times\n" }
+    size?.let { detailsDesc += "文件大小：${humanReadableByteCount(it, true)}\n" }
+    length?.let { detailsDesc += "页数：$it\n" }
+    favorites?.let { detailsDesc += "收藏：$it 次\n" }
     averageRating?.let {
-        detailsDesc += "Rating: $it"
+        detailsDesc += "评分：$it"
         ratingCount?.let { count -> detailsDesc += " ($count)" }
         detailsDesc += "\n"
     }
@@ -75,12 +75,12 @@ fun ExGalleryMetadata.copyTo(manga: SManga) {
         .joinToString(separator = "\n")
 }
 
-private fun buildTagsDescription(metadata: ExGalleryMetadata) = StringBuilder("Tags:\n").apply {
+private fun buildTagsDescription(metadata: ExGalleryMetadata) = StringBuilder("标签：\n").apply {
     // BiConsumer only available in Java 8, we have to use destructuring here
     metadata.tags.forEach { (namespace, tags) ->
         if (tags.isNotEmpty()) {
-            val joinedTags = tags.joinToString(separator = " ", transform = { "<${it.name}>" })
-            this += "▪ $namespace: $joinedTags\n"
+            val joinedTags = tags.joinToString(separator = " ", transform = { "<${CnTagTranslator.tag(it.name)}>" })
+            this += "▪ ${CnTagTranslator.namespace(namespace)}: $joinedTags\n"
         }
     }
 }

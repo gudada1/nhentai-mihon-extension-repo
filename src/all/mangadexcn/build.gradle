@@ -1,7 +1,7 @@
 ext {
     extName = 'MangaDex CN'
     extClass = '.MangaDexFactory'
-    extVersionCode = 211
+    extVersionCode = 212
     isNsfw = true
 }
 

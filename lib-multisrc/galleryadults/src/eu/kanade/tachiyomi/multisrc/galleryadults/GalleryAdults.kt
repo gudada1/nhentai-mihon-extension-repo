@@ -17,6 +17,7 @@ import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.util.asJsoup
+import keiyoushi.lib.cntagtranslator.CnTagTranslator
 import keiyoushi.utils.firstInstanceOrNull
 import keiyoushi.utils.getPreferencesLazy
 import keiyoushi.utils.parseAs
@@ -554,7 +555,7 @@ abstract class GalleryAdults(
             status = SManga.COMPLETED
             mangaTitle("h1")?.let { title = it }
             thumbnail_url = getCover()
-            genre = getInfo("Tags")
+            genre = CnTagTranslator.tags(getInfo("Tags"))
             author = getInfo("Artists")
             description = getDescription(document)
         }
@@ -574,7 +575,7 @@ abstract class GalleryAdults(
             .mapNotNull { tag ->
                 getInfo(tag)
                     .takeIf { it.isNotBlank() }
-                    ?.let { "$tag: $it" }
+                    ?.let { "${CnTagTranslator.namespace(tag)}: ${CnTagTranslator.tags(it) ?: it}" }
             } +
             listOfNotNull(
                 getInfoPages(document),
@@ -586,7 +587,7 @@ abstract class GalleryAdults(
 
     protected open fun Element.getInfoPages(document: Document? = null): String? = document?.inputIdValueOf(totalPagesSelector)
         ?.takeIf { it.isNotBlank() }
-        ?.let { "Pages: $it" }
+        ?.let { "页数: $it" }
 
     protected open fun Element.getInfoAlternativeTitle(): String? = selectFirst("h1 + h2, .subtitle")?.ownText()
         .takeIf { !it.isNullOrBlank() }
@@ -874,14 +875,14 @@ abstract class GalleryAdults(
     override fun getFilterList(): FilterList {
         requestTags()
         val filters = emptyList<Filter<*>>().toMutableList()
+        if (mangaLang == LANGUAGE_MULTI) {
+            filters.add(ChineseOnlyFilter())
+        }
         if (useIntermediateSearch) {
             filters.add(Filter.Header("提示：多个搜索词用英文逗号 (,) 分隔"))
         }
 
         filters.add(SortOrderFilter(getSortOrderURIs()))
-        if (mangaLang == LANGUAGE_MULTI) {
-            filters.add(ChineseOnlyFilter())
-        }
         if (supportAnimatedFilter) {
             filters.add(AnimatedFilter())
         }

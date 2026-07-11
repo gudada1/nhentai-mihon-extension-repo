@@ -1,8 +1,12 @@
 ext {
     extName = 'HDoujin CN'
     extClass = '.HDoujinFactory'
-    extVersionCode = 8
+    extVersionCode = 9
     isNsfw = true
 }
 
 apply plugin: "kei.plugins.extension.legacy"
+
+dependencies {
+    implementation(project(":lib:cntagtranslator"))
+}

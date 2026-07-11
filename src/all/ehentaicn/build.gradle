@@ -1,8 +1,12 @@
 ext {
     extName = 'E-Hentai CN'
     extClass = '.EHFactory'
-    extVersionCode = 34
+    extVersionCode = 35
     isNsfw = true
 }
 
 apply plugin: "kei.plugins.extension.legacy"
+
+dependencies {
+    implementation(project(":lib:cntagtranslator"))
+}

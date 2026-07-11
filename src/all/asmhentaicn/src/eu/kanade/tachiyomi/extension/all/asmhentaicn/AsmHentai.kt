@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.extension.all.asmhentaicn
 
+import eu.kanade.tachiyomi.multisrc.galleryadults.ChineseOnlyFilter
 import eu.kanade.tachiyomi.multisrc.galleryadults.GalleryAdults
 import eu.kanade.tachiyomi.multisrc.galleryadults.Genre
 import eu.kanade.tachiyomi.multisrc.galleryadults.imgAttr
@@ -92,10 +93,16 @@ class AsmHentai(
             )
         }
 
-    override fun getFilterList() = FilterList(
-        listOf(
-            Filter.Header("提示：多个搜索词用英文逗号 (,) 分隔"),
-            Filter.Header("普通文字搜索不支持排序筛选"),
-        ) + super.getFilterList().list,
-    )
+    override fun getFilterList(): FilterList {
+        val filters = super.getFilterList().list.toMutableList()
+        val insertIndex = if (filters.firstOrNull() is ChineseOnlyFilter) 1 else 0
+        filters.addAll(
+            insertIndex,
+            listOf(
+                Filter.Header("提示：多个搜索词用英文逗号 (,) 分隔"),
+                Filter.Header("普通文字搜索不支持排序筛选"),
+            ),
+        )
+        return FilterList(filters)
+    }
 }

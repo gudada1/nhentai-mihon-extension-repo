@@ -566,10 +566,10 @@ abstract class EHentai(
     // Filters
     override fun getFilterList() = FilterList(
         SearchLanguageFilter(),
+        EnforceLanguageFilter(getEnforceLanguagePref()),
         RankingTypeFilter(),
         RankingPeriodFilter(),
         Filter.Header("排行榜使用 E-Hentai 官方 Toplist；启用后普通关键词和标签筛选会被忽略"),
-        EnforceLanguageFilter(getEnforceLanguagePref()),
         Favorites(),
         Watched(),
         Filter.Separator(),

@@ -11,6 +11,7 @@ import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.util.asJsoup
+import keiyoushi.lib.cntagtranslator.CnTagTranslator
 import keiyoushi.utils.firstInstance
 import keiyoushi.utils.getPreferencesLazy
 import keiyoushi.utils.parseAs
@@ -129,7 +130,7 @@ class MyComic :
             }
             detailElement.selectFirst("div[data-flux-badge] + div")?.let { element ->
                 author = element.selectFirst(":first-child a")?.text()
-                genre = element.select("> div:nth-child(2) ~ div a").joinToString { it.text() }
+                genre = element.select("> div:nth-child(2) ~ div a").joinToString { CnTagTranslator.tag(it.text()) }
             }
             description =
                 detailElement.selectFirst("div[data-flux-badge] + div + div div[x-show=show]")

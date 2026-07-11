@@ -1,8 +1,12 @@
 ext {
     extName = 'MyComic CN'
     extClass = '.MyComic'
-    extVersionCode = 5
+    extVersionCode = 6
     isNsfw = true
 }
 
 apply plugin: "kei.plugins.extension.legacy"
+
+dependencies {
+    implementation(project(":lib:cntagtranslator"))
+}

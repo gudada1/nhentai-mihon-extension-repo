@@ -4,10 +4,10 @@ import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
 
 fun getFilters(): FilterList = FilterList(
+    ChineseOnlyFilter(),
     SelectFilter("排序", getSortsList),
     TypeFilter("类型"),
     AnimatedFilter(),
-    ChineseOnlyFilter(),
     Filter.Separator(),
     Filter.Header("多个标签用英文逗号 (,) 分隔"),
     Filter.Header("前面加减号 (-) 表示排除"),

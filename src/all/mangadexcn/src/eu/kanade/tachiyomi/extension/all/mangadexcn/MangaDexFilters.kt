@@ -16,8 +16,8 @@ class MangaDexFilters {
         dexLang: String,
         intl: Intl,
     ): FilterList = FilterList(
-        HasAvailableChaptersFilter(intl),
         OriginalLanguageList(intl, getOriginalLanguage(preferences, dexLang, intl)),
+        HasAvailableChaptersFilter(intl),
         ContentRatingList(intl, getContentRating(preferences, dexLang, intl)),
         DemographicList(intl, getDemographics(intl)),
         StatusList(intl, getStatus(intl)),

@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.extension.all.hdoujincn
 
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.model.UpdateStrategy
+import keiyoushi.lib.cntagtranslator.CnTagTranslator
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -57,12 +58,12 @@ class MangaDetail(
                 3 -> parodies.add(tag.name)
                 5 -> characters.add(tag.name)
                 7 -> tag.name.takeIf { it != "anonymous" }?.let { uploaders.add(it) }
-                8 -> males.add(tag.name + " ♂")
-                9 -> females.add(tag.name + " ♀")
-                10 -> mixed.add(tag.name)
-                11 -> language.add(tag.name)
-                12 -> other.add(tag.name)
-                else -> tags.add(tag.name)
+                8 -> males.add(CnTagTranslator.tag(tag.name + " ♂"))
+                9 -> females.add(CnTagTranslator.tag(tag.name + " ♀"))
+                10 -> mixed.add(CnTagTranslator.tag(tag.name))
+                11 -> language.add(CnTagTranslator.language(tag.name))
+                12 -> other.add(CnTagTranslator.tag(tag.name))
+                else -> tags.add(CnTagTranslator.tag(tag.name))
             }
         }
 
@@ -76,28 +77,31 @@ class MangaDetail(
         genre = (artists + circles + parodies + characters + tags + females + males + mixed + other).joinToString { it.capitalizeEach() }
         description = buildString {
             circles.joinAndCapitalizeEach()?.let {
-                append("Circles: ", it, "\n")
+                append("社团：", it, "\n")
             }
             uploaders.joinAndCapitalizeEach()?.let {
-                append("Uploaders: ", it, "\n")
+                append("上传者：", it, "\n")
             }
             parodies.joinAndCapitalizeEach()?.let {
-                append("Parodies: ", it, "\n")
+                append("原作：", it, "\n")
             }
             characters.joinAndCapitalizeEach()?.let {
-                append("Characters: ", it, "\n")
+                append("角色：", it, "\n")
+            }
+            language.joinAndCapitalizeEach()?.let {
+                append("语言：", it, "\n")
             }
 
             if (appended) append("\n")
 
             try {
-                append("Posted: ", dateFormat.format(created_at), "\n")
+                append("发布时间：", dateFormat.format(created_at), "\n")
             } catch (_: Exception) {}
 
-            append("Pages: ", thumbnails.entries.size, "\n\n")
+            append("页数：", thumbnails.entries.size, "\n\n")
 
             if (!subtitle.isNullOrBlank() || !subtitle_short.isNullOrBlank()) {
-                append("Alternative Title(s): ", mutableSetOf(subtitle, subtitle_short).filter { !it.isNullOrBlank() }.joinToString { "\n- $it" }, "\n\n")
+                append("其他标题：", mutableSetOf(subtitle, subtitle_short).filter { !it.isNullOrBlank() }.joinToString { "\n- $it" }, "\n\n")
             }
         }
         status = SManga.COMPLETED

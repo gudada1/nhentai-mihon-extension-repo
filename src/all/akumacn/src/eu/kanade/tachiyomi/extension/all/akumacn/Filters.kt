@@ -4,9 +4,9 @@ import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
 
 fun getFilters(): FilterList = FilterList(
+    ChineseOnlyFilter(),
     Filter.Header("多个标签用英文逗号 (,) 分隔"),
     Filter.Header("前面加减号 (-) 表示排除"),
-    ChineseOnlyFilter(),
     AnimatedFilter(),
     TextFilter("女性标签", "female"),
     TextFilter("男性标签", "male"),

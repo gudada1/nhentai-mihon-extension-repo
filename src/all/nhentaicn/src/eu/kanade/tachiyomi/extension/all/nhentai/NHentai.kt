@@ -435,6 +435,7 @@ open class NHentai(
 
     // Filters
     override fun getFilterList(): FilterList = FilterList(
+        SearchLanguageFilter(),
         Filter.Header("当前浏览页：第 ${getLastPagePref()} 页（上次请求）"),
         Filter.Header("关键词支持部分中文别名，例如作品名、角色名、常见标签会自动转为英文搜索语法。"),
         Filter.Header("多个条件用英文逗号 (,) 分隔"),
@@ -453,7 +454,6 @@ open class NHentai(
         AnimatedFilter(),
 
         Filter.Separator(),
-        SearchLanguageFilter(),
         SortFilter(
             SORT_OPTIONS.indexOfFirst { it.second == preferences.getString(SORT_PREF, "popular") }
                 .coerceAtLeast(0),

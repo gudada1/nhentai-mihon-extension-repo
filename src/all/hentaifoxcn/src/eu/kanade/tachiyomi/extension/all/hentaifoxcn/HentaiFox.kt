@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.extension.all.hentaifoxcn
 
+import eu.kanade.tachiyomi.multisrc.galleryadults.ChineseOnlyFilter
 import eu.kanade.tachiyomi.multisrc.galleryadults.GalleryAdults
 import eu.kanade.tachiyomi.multisrc.galleryadults.Genre
 import eu.kanade.tachiyomi.multisrc.galleryadults.SortOrderFilter
@@ -112,11 +113,12 @@ class HentaiFox(
     override val favoritePath = "includes/user_favs.php"
     override val pagesRequest = "includes/thumbs_loader.php"
 
-    override fun getFilterList() = FilterList(
-        listOf(
-            Filter.Header("提示：用英文双引号 (\") 可精确匹配"),
-        ) + super.getFilterList().list,
-    )
+    override fun getFilterList(): FilterList {
+        val filters = super.getFilterList().list.toMutableList()
+        val insertIndex = if (filters.firstOrNull() is ChineseOnlyFilter) 1 else 0
+        filters.add(insertIndex, Filter.Header("提示：用英文双引号 (\") 可精确匹配"))
+        return FilterList(filters)
+    }
 
     private val sidebarPath = "includes/sidebar.php"
 

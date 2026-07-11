@@ -1,0 +1,262 @@
+package keiyoushi.lib.cntagtranslator
+
+import java.util.Locale
+
+object CnTagTranslator {
+    fun tag(value: String): String {
+        val trimmed = value.trim()
+        if (trimmed.isBlank()) return trimmed
+
+        val suffix = suffixes.firstOrNull { trimmed.endsWith(it) }.orEmpty()
+        val base = trimmed.removeSuffix(suffix).trim()
+        val translated = terms[base.normalizedKey()] ?: base
+        return if (suffix.isBlank()) translated else "$translated$suffix"
+    }
+
+    fun tags(value: String?): String? = value
+        ?.split(',')
+        ?.map(String::trim)
+        ?.filter(String::isNotBlank)
+        ?.joinToString { tag(it) }
+        ?.takeIf(String::isNotBlank)
+
+    fun language(value: String): String {
+        val translated = tag(value.replace(Regex("""\s+TR$""", RegexOption.IGNORE_CASE), "").trim())
+        return if (value.endsWith(" TR", ignoreCase = true)) "$translated（已翻译）" else translated
+    }
+
+    fun namespace(value: String): String = namespaces[value.normalizedKey()] ?: value
+
+    fun label(value: String): String = labels[value.normalizedKey()] ?: value
+
+    private fun String.normalizedKey(): String = trim()
+        .removePrefix("<")
+        .removeSuffix(">")
+        .removeSuffix(":")
+        .replace('_', ' ')
+        .replace('-', ' ')
+        .lowercase(Locale.ROOT)
+        .replace(Regex("""\s+"""), " ")
+
+    private val suffixes = listOf(" ♀", " ♂", " ◊")
+
+    private val namespaces = mapOf(
+        "artist" to "画师",
+        "artists" to "画师",
+        "author" to "作者",
+        "authors" to "作者",
+        "category" to "分类",
+        "categories" to "分类",
+        "character" to "角色",
+        "characters" to "角色",
+        "circle" to "社团",
+        "circles" to "社团",
+        "female" to "女性标签",
+        "females" to "女性标签",
+        "group" to "社团",
+        "groups" to "社团",
+        "language" to "语言",
+        "languages" to "语言",
+        "male" to "男性标签",
+        "males" to "男性标签",
+        "mixed" to "混合标签",
+        "other" to "其他",
+        "parodies" to "原作",
+        "parody" to "原作",
+        "reclass" to "分类",
+        "rows" to "页数",
+        "tag" to "标签",
+        "tags" to "标签",
+        "uploader" to "上传者",
+        "uploaders" to "上传者",
+    )
+
+    private val labels = mapOf(
+        "alternate title" to "其他标题",
+        "alternative title(s)" to "其他标题",
+        "categories" to "分类",
+        "characters" to "角色",
+        "circles" to "社团",
+        "favorited" to "收藏",
+        "file size" to "文件大小",
+        "full english and japanese title" to "完整英文/日文标题",
+        "japanese title" to "日文标题",
+        "language" to "语言",
+        "length" to "页数",
+        "pages" to "页数",
+        "parodies" to "原作",
+        "posted" to "发布时间",
+        "rating" to "评分",
+        "series" to "系列/原作",
+        "tags" to "标签",
+        "title" to "标题",
+        "type" to "类型",
+        "upload date" to "上传时间",
+        "uploader" to "上传者",
+        "uploaders" to "上传者",
+        "visible" to "可见",
+    )
+
+    private val terms = mapOf(
+        "3d" to "3D",
+        "adaption" to "改编",
+        "adaptation" to "改编",
+        "ai assisted" to "AI 辅助",
+        "ai generated" to "AI 生成",
+        "anal" to "肛交",
+        "animated" to "动图",
+        "anime" to "动画",
+        "anthology" to "合集",
+        "artist cg" to "画师 CG",
+        "asian porn" to "亚洲真人",
+        "award winning" to "获奖",
+        "bdsm" to "BDSM",
+        "big areolae" to "大乳晕",
+        "big ass" to "大屁股",
+        "big breasts" to "巨乳",
+        "bikini" to "比基尼",
+        "black hair" to "黑发",
+        "blindfold" to "眼罩",
+        "blonde hair" to "金发",
+        "blowjob" to "口交",
+        "bodysuit" to "紧身衣",
+        "bondage" to "拘束",
+        "boys love" to "BL",
+        "bunny girl" to "兔女郎",
+        "catgirl" to "猫娘",
+        "cheating" to "出轨",
+        "chinese" to "中文",
+        "collar" to "项圈",
+        "comedy" to "喜剧",
+        "comic" to "漫画",
+        "cosplay" to "Cosplay",
+        "crossdressing" to "男扮女装",
+        "cum in mouth" to "口内射精",
+        "cum on body" to "体表射精",
+        "cum on face" to "颜射",
+        "dark skin" to "深色皮肤",
+        "deepthroat" to "深喉",
+        "defloration" to "破处",
+        "demon girl" to "恶魔娘",
+        "dildo" to "假阳具",
+        "doujinshi" to "同人志",
+        "elf" to "精灵",
+        "english" to "英语",
+        "facesitting" to "坐脸",
+        "facial" to "颜射",
+        "fan colored" to "粉丝上色",
+        "female" to "女性",
+        "females only" to "仅女性",
+        "femdom" to "女性主导",
+        "fft" to "FFT",
+        "fingering" to "手指插入",
+        "footjob" to "足交",
+        "forbidden content" to "禁忌内容",
+        "forced" to "强迫",
+        "french" to "法语",
+        "full color" to "全彩",
+        "full censorship" to "完全有码",
+        "futanari" to "扶她",
+        "game cg" to "游戏 CG",
+        "garter belt" to "吊袜带",
+        "gender bender" to "性转",
+        "german" to "德语",
+        "gif" to "GIF",
+        "girls love" to "GL",
+        "glasses" to "眼镜",
+        "group" to "群体",
+        "guro" to "猎奇",
+        "gyaru" to "辣妹",
+        "handjob" to "手交",
+        "harem" to "后宫",
+        "heterochromia" to "异色瞳",
+        "huge breasts" to "爆乳",
+        "hypnosis" to "催眠",
+        "idol" to "偶像",
+        "image set" to "图集",
+        "imageset" to "图集",
+        "impregnation" to "受孕",
+        "incest" to "乱伦",
+        "inflation" to "膨胀",
+        "inseki" to "姻亲",
+        "japanese" to "日语",
+        "kemonomimi" to "兽耳",
+        "kimono" to "和服",
+        "korean" to "韩语",
+        "lactation" to "泌乳",
+        "large insertions" to "大物插入",
+        "leg lock" to "腿锁",
+        "lingerie" to "内衣",
+        "loli" to "萝莉",
+        "lolicon" to "萝莉控",
+        "long hair" to "长发",
+        "long strip" to "长条",
+        "maid" to "女仆",
+        "male" to "男性",
+        "males only" to "仅男性",
+        "manga" to "漫画",
+        "masturbation" to "自慰",
+        "megane" to "眼镜",
+        "milf" to "熟女",
+        "mind break" to "精神崩坏",
+        "mind control" to "精神控制",
+        "misc" to "其他",
+        "mixed" to "混合",
+        "mosaic censorship" to "马赛克有码",
+        "mother" to "母亲",
+        "multiple boys" to "多名男性",
+        "multiple girls" to "多名女性",
+        "nakadashi" to "中出",
+        "netorare" to "NTR",
+        "netori" to "逆 NTR",
+        "no" to "否",
+        "non h" to "非成人",
+        "nurse" to "护士",
+        "official colored" to "官方上色",
+        "office lady" to "OL",
+        "old man" to "老人",
+        "oneshot" to "单篇",
+        "oppai" to "胸部",
+        "paizuri" to "乳交",
+        "pantyhose" to "连裤袜",
+        "piercing" to "穿孔",
+        "ponytail" to "马尾",
+        "ponytails" to "双马尾",
+        "pregnancy" to "怀孕",
+        "pregnant" to "孕妇",
+        "private" to "私人",
+        "prostitution" to "卖春",
+        "rape" to "强奸",
+        "school swimsuit" to "学校泳装",
+        "schoolgirl" to "女学生",
+        "schoolgirl uniform" to "学生制服",
+        "sex toys" to "性玩具",
+        "short hair" to "短发",
+        "shotacon" to "正太控",
+        "sister" to "姐妹",
+        "small breasts" to "贫乳",
+        "sole female" to "单女主",
+        "sole male" to "单男主",
+        "spanish" to "西语",
+        "speechless" to "无对白",
+        "stockings" to "长筒袜",
+        "swimsuit" to "泳装",
+        "teacher" to "教师",
+        "tentacles" to "触手",
+        "tomboy" to "假小子",
+        "translated" to "已翻译",
+        "twintails" to "双马尾",
+        "uncensored" to "无码",
+        "uniform" to "制服",
+        "vampire" to "吸血鬼",
+        "vibrator" to "振动棒",
+        "virginity" to "处女",
+        "web comic" to "网络漫画",
+        "webtoon" to "网络漫画",
+        "western" to "西方",
+        "x ray" to "透视",
+        "yes" to "是",
+        "yaoi" to "耽美",
+        "yuri" to "百合",
+    )
+}

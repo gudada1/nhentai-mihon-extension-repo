@@ -14,6 +14,7 @@ import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.util.asJsoup
+import keiyoushi.lib.cntagtranslator.CnTagTranslator
 import keiyoushi.network.rateLimit
 import keiyoushi.utils.getPreferencesLazy
 import keiyoushi.utils.tryParse
@@ -269,29 +270,29 @@ class Akuma(
             val characters = document.select(".character~.value").eachText()
             val parodies = document.select(".parody~.value").eachText()
             val males = document.select(".male~.value")
-                .map { "${it.text()} ♂" }
+                .map { CnTagTranslator.tag("${it.text()} ♂") }
             val females = document.select(".female~.value")
-                .map { "${it.text()} ♀" }
+                .map { CnTagTranslator.tag("${it.text()} ♀") }
             val others = document.select(".other~.value")
-                .map { "${it.text()} ◊" }
+                .map { CnTagTranslator.tag("${it.text()} ◊") }
 
             genre = (males + females + others).joinToString()
             description = buildString {
                 append(
-                    "Full English and Japanese title: \n",
+                    "完整英文/日文标题：\n",
                     document.select(".entry-title").text(),
                     "\n",
                     document.select(".entry-title+span").text(),
                     "\n\n",
                 )
 
-                append("Language: ", document.select(".language~.value").eachText().joinToString(), "\n")
-                append("Pages: ", document.select(".pages .value").text(), "\n")
-                append("Upload Date: ", document.select(".date .value>time").text().replace(" ", ", ") + " UTC", "\n")
-                append("Categories: ", document.selectFirst(".info-list .value")?.text() ?: "Unknown", "\n\n")
+                append("语言：", document.select(".language~.value").eachText().joinToString(transform = CnTagTranslator::language), "\n")
+                append("页数：", document.select(".pages .value").text(), "\n")
+                append("上传时间：", document.select(".date .value>time").text().replace(" ", ", ") + " UTC", "\n")
+                append("分类：", CnTagTranslator.tags(document.selectFirst(".info-list .value")?.text()) ?: "未知", "\n\n")
 
-                parodies.takeIf { it.isNotEmpty() }?.let { append("Parodies: ", parodies.joinToString(), "\n") }
-                characters.takeIf { it.isNotEmpty() }?.let { append("Characters: ", characters.joinToString(), "\n") }
+                parodies.takeIf { it.isNotEmpty() }?.let { append("原作：", parodies.joinToString(), "\n") }
+                characters.takeIf { it.isNotEmpty() }?.let { append("角色：", characters.joinToString(), "\n") }
             }
             update_strategy = UpdateStrategy.ONLY_FETCH_ONCE
             status = SManga.UNKNOWN

@@ -5,3 +5,7 @@ plugins {
 }
 
 baseVersionCode = 9
+
+dependencies {
+    implementation(project(":lib:cntagtranslator"))
+}

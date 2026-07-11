@@ -10,6 +10,7 @@ import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import eu.kanade.tachiyomi.source.online.HttpSource
+import keiyoushi.lib.cntagtranslator.CnTagTranslator
 import keiyoushi.utils.parseAs
 import keiyoushi.utils.tryParse
 import kotlinx.coroutines.async
@@ -540,17 +541,17 @@ class Hitomi(
         }
         description = buildString {
             japaneseTitle?.let {
-                append("Japanese title: ", it, "\n")
+                append("日文标题：", it, "\n")
             }
             parodys?.joinToString { it.formatted }?.let {
-                append("Series: ", it, "\n")
+                append("系列/原作：", it, "\n")
             }
             characters?.joinToString { it.formatted }?.let {
-                append("Characters: ", it, "\n")
+                append("角色：", it, "\n")
             }
-            append("Type: ", type, "\n")
-            append("Pages: ", files.size, "\n")
-            language?.let { append("Language: ", language) }
+            type?.let { append("类型：", CnTagTranslator.tag(it), "\n") }
+            append("页数：", files.size, "\n")
+            language?.let { append("语言：", CnTagTranslator.language(it)) }
         }
         status = SManga.COMPLETED
         update_strategy = UpdateStrategy.ONLY_FETCH_ONCE

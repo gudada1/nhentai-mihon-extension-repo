@@ -1,8 +1,12 @@
 ext {
     extName = 'Akuma CN'
     extClass = '.AkumaFactory'
-    extVersionCode = 14
+    extVersionCode = 15
     isNsfw = true
 }
 
 apply plugin: "kei.plugins.extension.legacy"
+
+dependencies {
+    implementation(project(":lib:cntagtranslator"))
+}
