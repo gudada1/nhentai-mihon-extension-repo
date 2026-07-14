@@ -7,6 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $apkDir = Join-Path $RepoRoot 'apk'
 $metadataDir = Join-Path $RepoRoot 'metadata'
+$iconDir = Join-Path $RepoRoot 'icon'
 $repoPath = Join-Path $RepoRoot 'repo.json'
 $indexPath = Join-Path $RepoRoot 'index.min.json'
 $indexV2Path = Join-Path $RepoRoot 'index-v2.min.json'
@@ -118,10 +119,7 @@ function Normalize-SourceList {
 }
 
 function Convert-V2Source {
-    param(
-        $Source,
-        [int] $Nsfw
-    )
+    param($Source)
 
     [ordered]@{
         id = [long] "$($Source.id)"
@@ -129,7 +127,52 @@ function Convert-V2Source {
         language = "$($Source.lang)"
         homeUrl = "$($Source.baseUrl)"
         mirrorUrls = @()
-        contentRating = if ($Nsfw -eq 1) { 'PORNOGRAPHIC' } else { 'SAFE' }
+    }
+}
+
+function Export-ApkIcon {
+    param(
+        [string] $PackageName,
+        [string] $ApkPath,
+        [string] $DestinationPath
+    )
+
+    $packagePrefix = 'eu.kanade.tachiyomi.extension.'
+    if ($PackageName.StartsWith($packagePrefix)) {
+        $sourceRelativePath = $PackageName.Substring($packagePrefix.Length).Replace('.', '\')
+        $sourceIcon = Get-ChildItem `
+            -LiteralPath (Join-Path $RepoRoot "src\$sourceRelativePath") `
+            -Filter 'ic_launcher.png' `
+            -File `
+            -Recurse `
+            -ErrorAction SilentlyContinue |
+            Sort-Object Length -Descending |
+            Select-Object -First 1
+        if ($sourceIcon) {
+            New-Item -ItemType Directory -Force -Path (Split-Path -Parent $DestinationPath) | Out-Null
+            Copy-Item -LiteralPath $sourceIcon.FullName -Destination $DestinationPath -Force
+            return
+        }
+    }
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($ApkPath)
+    try {
+        $iconEntry = $archive.Entries |
+            Where-Object { $_.FullName -match '^res/mipmap[^/]*/ic_launcher\.png$' } |
+            Sort-Object Length -Descending |
+            Select-Object -First 1
+        if (-not $iconEntry) {
+            return
+        }
+
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $DestinationPath) | Out-Null
+        if (Test-Path -LiteralPath $DestinationPath) {
+            Remove-Item -LiteralPath $DestinationPath -Force
+        }
+        [System.IO.Compression.ZipFileExtensions]::ExtractToFile($iconEntry, $DestinationPath)
+    } finally {
+        $archive.Dispose()
     }
 }
 
@@ -156,7 +199,7 @@ function Convert-V2Extension {
     }
 
     $sources = if ($Entry.sources -and @($Entry.sources).Count -gt 0) {
-        @($Entry.sources) | ForEach-Object { Convert-V2Source $_ ([int] $Entry.nsfw) }
+        @($Entry.sources) | ForEach-Object { Convert-V2Source $_ }
     } else {
         @(
             [ordered]@{
@@ -165,7 +208,6 @@ function Convert-V2Extension {
                 language = "$($Entry.lang)"
                 homeUrl = ''
                 mirrorUrls = @()
-                contentRating = if ([int] $Entry.nsfw -eq 1) { 'PORNOGRAPHIC' } else { 'SAFE' }
             }
         )
     }
@@ -180,6 +222,7 @@ function Convert-V2Extension {
         extensionLib = Get-ExtensionLibVersion "$($Entry.version)"
         versionCode = [long] $Entry.code
         versionName = "$($Entry.version)"
+        contentWarning = if ([int] $Entry.nsfw -eq 1) { 'NSFW' } else { 'SAFE' }
         sources = @($sources)
     }
 }
@@ -216,7 +259,10 @@ function New-V2Store {
             website = "$($Repo.meta.website)"
             discord = $null
         }
-        extensions = @($Entries | ForEach-Object { Convert-V2Extension $_ $RawBaseUrl })
+        extensionList = [ordered]@{
+            extensions = @($Entries | ForEach-Object { Convert-V2Extension $_ $RawBaseUrl })
+        }
+        extensionListUrl = $null
     }
 }
 
@@ -255,6 +301,11 @@ $entries = @(Get-ChildItem -LiteralPath $apkDir -Filter '*.apk' -File | Sort-Obj
     if (-not $packageName) {
         throw "Could not parse package name from $($apk.Name)"
     }
+
+    Export-ApkIcon `
+        -PackageName $packageName `
+        -ApkPath $apk.FullName `
+        -DestinationPath (Join-Path $iconDir "$packageName.png")
 
     $metadata = $metadataByPackage[$packageName]
     $manifestNsfw = Get-ManifestMetadataValue $xmltree 'tachiyomi.extension.nsfw'
