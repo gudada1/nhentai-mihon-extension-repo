@@ -235,6 +235,7 @@ open class NHentai(
     // Search
 
     override suspend fun getSearchManga(page: Int, query: String, filters: FilterList): MangasPage = when {
+        query.startsWith("https://") && isListingOrSearchUrl(query) -> searchMangaByUrl(page, query)
         query.startsWith("https://") -> {
             val url = query.toHttpUrl()
             if (url.host != baseUrl.toHttpUrl().host) {
@@ -255,6 +256,55 @@ open class NHentai(
         }
 
         else -> super.getSearchManga(page, query, filters)
+    }
+
+    private fun isListingOrSearchUrl(query: String): Boolean = runCatching {
+        val url = query.toHttpUrl()
+        url.host == baseUrl.toHttpUrl().host &&
+            when (url.pathSegments.firstOrNull()) {
+                "", null, "search" -> true
+                else -> false
+            }
+    }.getOrDefault(false)
+
+    private suspend fun searchMangaByUrl(page: Int, query: String): MangasPage {
+        val url = query.toHttpUrl()
+        val request = when (url.pathSegments.firstOrNull()) {
+            "", null -> listingUrlMangaRequest(page, url)
+            "search" -> searchUrlMangaRequest(page, url)
+            else -> throw Exception("Unsupported link")
+        }
+        return client.newCall(request).await().use(::searchMangaParse)
+    }
+
+    private fun listingUrlMangaRequest(page: Int, sourceUrl: okhttp3.HttpUrl): Request {
+        val requestPage = resolveUrlRequestPage(page, sourceUrl)
+        val url = "$apiUrl/galleries".toHttpUrl().newBuilder()
+            .addQueryParameter("page", requestPage.toString())
+        return GET(url.build(), headers)
+    }
+
+    private fun searchUrlMangaRequest(page: Int, sourceUrl: okhttp3.HttpUrl): Request {
+        val requestPage = resolveUrlRequestPage(page, sourceUrl)
+        val url = "$apiUrl/search".toHttpUrl().newBuilder()
+            .addQueryParameter("query", sourceUrl.queryParameter("q").orEmpty().ifBlank { "\"\"" })
+            .addQueryParameter("page", requestPage.toString())
+
+        sourceUrl.queryParameter("sort")
+            ?.takeIf(String::isNotBlank)
+            ?.let { url.addQueryParameter("sort", it) }
+
+        return GET(url.build(), headers)
+    }
+
+    private fun resolveUrlRequestPage(page: Int, sourceUrl: okhttp3.HttpUrl): Int {
+        val startPage = sourceUrl.queryParameter("page")
+            ?.toIntOrNull()
+            ?.coerceAtLeast(1)
+            ?: 1
+        val requestPage = startPage + page - 1
+        rememberLastPage(requestPage)
+        return requestPage
     }
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
@@ -364,7 +414,14 @@ open class NHentai(
 
     fun parseSearchData(data: GalleryItem): SManga = SManga.create().apply {
         url = "/g/${data.id}/"
-        title = (data.englishTitle ?: data.japaneseTitle)!!.let {
+        title = (
+            data.englishTitle
+                ?: data.japaneseTitle
+                ?: data.title?.english
+                ?: data.title?.japanese
+                ?: data.title?.pretty
+                ?: "#${data.id}"
+            ).let {
             if (displayFullTitle) it else it.shortenTitle()
         }
         thumbnail_url = "$thumbServer/${data.thumbnail}"

@@ -24,6 +24,7 @@ class GalleryItem(
     val thumbnail: String,
     @SerialName("english_title") val englishTitle: String? = null,
     @SerialName("japanese_title") val japaneseTitle: String? = null,
+    val title: Title? = null,
 )
 
 @Serializable
